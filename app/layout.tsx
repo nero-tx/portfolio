@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import TransitionProvider from "@/components/TransitionProvider";
+import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "nero-tx porto",
@@ -26,8 +28,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">
-        <SmoothScroll>{children}</SmoothScroll>
+      <body className="min-h-full flex flex-col relative">
+        <TransitionProvider>
+          <SmoothScroll>
+            <Header />
+
+            {children}
+          </SmoothScroll>
+        </TransitionProvider>
       </body>
     </html>
   );

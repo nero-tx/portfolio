@@ -1,191 +1,214 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { TransitionRouter } from "next-transition-router";
 import gsap from "gsap";
+import NeroSigil from "./NeroSigil";
 
-// Generate 30 columns with an Arrakis / Dune palette gradient
+const PALETTE = [
+  "#0A0908",
+  "#170F09",
+  "#241609",
+  "#2A1B10",
+  "#3D2415",
+  "#5A3A22",
+] as const;
+const DEPTH_PATTERN = [0, 1, 2, 1, 3, 2, 4, 3, 5, 3, 2, 1];
 const COLUMN_COUNT = 30;
-const COLUMNS = Array.from({ length: COLUMN_COUNT }).map((_, index) => {
-  const progress = index / (COLUMN_COUNT - 1);
-
-  let bg = "#0c0a09";
-  if (progress < 0.4) {
-    bg = `color-mix(in srgb, #0c0a09 ${100 - progress * 250}%, #7c2d12)`;
-  } else if (progress < 0.8) {
-    const localProg = (progress - 0.4) / 0.4;
-    bg = `color-mix(in srgb, #7c2d12 ${100 - localProg * 100}%, #d97706)`;
-  } else {
-    const localProg = (progress - 0.8) / 0.2;
-    bg = `color-mix(in srgb, #d97706 ${100 - localProg * 100}%, #0c0a09)`;
-  }
-
-  return { id: index, bg };
-});
+const COLUMNS = Array.from({ length: COLUMN_COUNT }, (_, i) => ({
+  id: i,
+  color: PALETTE[DEPTH_PATTERN[i % DEPTH_PATTERN.length]],
+}));
 
 export default function ColumnTransitionProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const wrapperRef = useRef<HTMLDivElement>(null!);
-  const overlayRef = useRef<HTMLDivElement>(null!);
-  const columnsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [sealed, setSealed] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const columnsRef = useRef<HTMLDivElement[]>([]);
 
   return (
     <TransitionRouter
       auto
       leave={(next) => {
+        const wrapper = wrapperRef.current;
+        const overlay = overlayRef.current;
+        const logo = logoRef.current;
+        const cols = columnsRef.current;
+
+        if (!wrapper || !overlay) {
+          next();
+          return () => {};
+        }
+
         const reduced = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
+
         const tl = gsap.timeline({ onComplete: next });
 
-        const cols = columnsRef.current.filter(Boolean);
-
-        // Make overlay visible and active during transition
-        gsap.set(overlayRef.current, {
+        gsap.set(overlay, {
           display: "flex",
-          pointerEvents: "all",
           opacity: 1,
+          pointerEvents: "all",
         });
 
-        // Set transform origin LEFT so blocks scale out towards the RIGHT
         gsap.set(cols, {
-          transformOrigin: "left center",
           scaleX: 0,
+          transformOrigin: "left center",
+        });
+
+        gsap.set(logo, {
+          opacity: 0,
+          scale: 0.85,
         });
 
         if (reduced) {
-          tl.to(wrapperRef.current, { opacity: 0, duration: 0.35 });
-          tl.to(cols, { scaleX: 1, duration: 0.35 }, 0);
+          tl.to([wrapper, cols], { opacity: 0, duration: 0.2 }, 0);
+          tl.call(() => setSealed(false), [], 0);
           return () => tl.kill();
         }
 
-        // 1. Page Content Depth Effect
         tl.to(
-          wrapperRef.current,
+          wrapper,
           {
-            scale: 0.96,
-            filter: "blur(8px) brightness(0.5)",
-            duration: 0.8,
+            scale: 1,
+            filter: "brightness(0.35) blur(6px)",
+            duration: 0.55,
             ease: "power3.inOut",
           },
           0,
         );
 
-        // 2. 30 Columns Stagger Sweep (Left to Right)
         tl.to(
           cols,
           {
-            scaleX: 1.02, // Prevents sub-pixel gaps between columns
-            duration: 0.55,
+            scaleX: 1.02,
+            duration: 0.6,
             ease: "power4.inOut",
-            stagger: {
-              each: 0.015,
-              from: "start",
-            },
+            stagger: 0.012,
           },
           0,
         );
 
+        tl.call(() => setSealed(true), [], 0.6);
+
+        tl.to(
+          logo,
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.4,
+            ease: "back.out(1.4)",
+          },
+          0.55,
+        );
+
+        tl.to({}, { duration: 1.2 });
+
+        tl.to(logo, {
+          opacity: 0,
+          scale: 0.92,
+          duration: 0.25,
+          ease: "power3.in",
+        });
+
+        tl.call(() => setSealed(false));
+
         return () => tl.kill();
       }}
       enter={(next) => {
+        const wrapper = wrapperRef.current;
+        const overlay = overlayRef.current;
+        const cols = columnsRef.current;
+
+        if (!wrapper || !overlay) {
+          next();
+          return () => {};
+        }
+
         const reduced = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
+
         const tl = gsap.timeline({
           onComplete: () => {
-            // Completely hide the overlay container so it disappears from DOM layer tree
-            gsap.set(overlayRef.current, {
+            gsap.set(overlay, {
               display: "none",
-              pointerEvents: "none",
               opacity: 0,
+              pointerEvents: "none",
             });
-
-            // Clean inline transform & blur styles off your page wrapper
-            gsap.set(wrapperRef.current, { clearProps: "all" });
-
+            gsap.set(wrapper, { clearProps: "all" });
             next();
           },
         });
 
-        const cols = columnsRef.current.filter(Boolean);
+        tl.call(() => setSealed(false), [], 0);
 
         if (reduced) {
-          tl.to(wrapperRef.current, { opacity: 1, duration: 0.35 });
-          tl.to(cols, { scaleX: 0, duration: 0.35 }, 0);
+          tl.to(wrapper, { opacity: 1, duration: 0.2 }, 0);
           return () => tl.kill();
         }
 
-        // Set transform origin RIGHT so shrinking scaleX collapses from left-to-right
-        gsap.set(cols, {
-          transformOrigin: "right center",
-        });
+        gsap.set(cols, { transformOrigin: "right center" });
 
-        // 1. 30 Columns Collapse Sweep (Left to Right)
         tl.to(
           cols,
           {
             scaleX: 0,
             duration: 0.55,
             ease: "power4.inOut",
-            stagger: {
-              each: 0.015,
-              from: "start",
-            },
+            stagger: 0.012,
           },
           0,
         );
 
         tl.to(
-          wrapperRef.current,
+          wrapper,
           {
             scale: 1,
-            filter: "blur(0px) brightness(1)",
+            filter: "brightness(1) blur(0px)",
             duration: 0.6,
             ease: "power3.out",
           },
-          0.15,
+          0.1,
         );
 
         return () => tl.kill();
       }}
     >
-      <div
-        ref={wrapperRef}
-        className="will-change-[transform,filter] transition-none"
-      >
+      <div ref={wrapperRef} className="will-change-[transform,filter]">
         {children}
       </div>
 
       <div
         ref={overlayRef}
-        className="pointer-events-none fixed inset-0 z-50 hidden opacity-0 h-full w-full overflow-hidden"
+        className="pointer-events-none fixed inset-0 z-9999 opacity-0 flex h-full w-full items-center justify-center overflow-hidden"
         aria-hidden="true"
       >
-        {COLUMNS.map((col, i) => (
-          <div
-            key={col.id}
-            ref={(el) => {
-              columnsRef.current[i] = el;
-            }}
-            className="h-full flex-1 will-change-transform"
-            style={{
-              backgroundColor: col.bg,
-              transform: "scaleX(0)",
-            }}
-          />
-        ))}
+        <div className="absolute inset-0 flex">
+          {COLUMNS.map((col, idx) => (
+            <div
+              key={col.id}
+              ref={(el) => {
+                if (el) columnsRef.current[idx] = el;
+              }}
+              className="h-full flex-1 border-r border-white/5 last:border-r-0 will-change-transform"
+              style={{
+                backgroundColor: col.color,
+                transform: "scaleX(0)",
+              }}
+            />
+          ))}
+        </div>
 
-        {/* Dune Film Grain Texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          }}
-        />
+        <div ref={logoRef} className="relative z-10 opacity-0 select-none">
+          <NeroSigil size={120} active={sealed} />
+        </div>
       </div>
     </TransitionRouter>
   );

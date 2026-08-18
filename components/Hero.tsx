@@ -4,8 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
-import Button from "./Button";
+import { ArrowDown } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -39,11 +38,6 @@ export default function Hero() {
       });
 
       gsap.set(".hero-bottom-description", {
-        y: 20,
-        opacity: 0,
-      });
-
-      gsap.set(".hero-contact", {
         y: 20,
         opacity: 0,
       });
@@ -117,17 +111,6 @@ export default function Hero() {
             ease: "power3.out",
           },
           0.85,
-        )
-
-        // CTA
-        .to(
-          ".hero-contact",
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.75,
-          },
-          1.0,
         )
 
         // top metadata
@@ -242,17 +225,6 @@ export default function Hero() {
         0,
       );
 
-      // CTA
-      scrollTl.to(
-        ".hero-contact",
-        {
-          yPercent: 100,
-          opacity: 0,
-          duration: 0.65,
-        },
-        0,
-      );
-
       // TOP META
       scrollTl.to(
         ".hero-meta",
@@ -330,7 +302,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} id="hero" className="relative h-[180vh]">
+    <section ref={heroRef} id="hero" className="relative h-[180vh] pointer-events-none select-none">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <div className="pointer-events-none absolute left-[5.8rem top-0 z-10 hidden h-full w-px bg-white/5 md:block">
           <div className="hero-vertical-line absolute left-0 top-0 h-[32%] w-full bg-linear-to-b from-transparent via-[#D98C4A] to-transparent" />
@@ -363,15 +335,6 @@ export default function Hero() {
                 and atmosphere become one — built to perform, adapt, and endure.
               </p>
             </div>
-
-            <Button
-              id="hero-contact-btn"
-              title="Get in touch"
-              rightIcon={ArrowUpRight}
-              className="hero-contact hidden sm:flex rounded-full mt-8 bg-white text-amber-900 font-bold"
-              disableAudio
-              onClick={() => {}}
-            />
           </div>
         </div>
 

@@ -57,7 +57,6 @@ export default function Scene() {
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ fov: 32, position: [0, 1.4, 7.2] }}
       style={{ pointerEvents: "none" }}
-      
     >
       <color attach="background" args={["#0a0806"]} />
       <fog attach="fog" args={["#0a0806", 5, 13]} />

@@ -11,6 +11,8 @@ import {
   buildRockDetailCanvas,
 } from "@/utils/shaders/artifactGeometry";
 import { fresnelVertex, fresnelFragment } from "@/utils/shaders/fresnelRim";
+import { applyCrackDisplacement } from "@/utils/shaders/crackDisplacement";
+import { usePointerRig } from "@/hooks/usePointerRig";
 import type { ArtifactMotionState } from "@/utils/artifactMotion";
 import ArtifactCore from "./ArtifactCore";
 
@@ -28,6 +30,10 @@ export default function Artifact({
   const veinsMaterial = useRef<LineMaterial>(null);
   const coreRevealRef = useRef(0);
   const { size, gl } = useThree();
+
+  const pointerRig = usePointerRig();
+  const crackIntensityRef = useRef(0);
+  const dragRotationOffset = useRef({ x: 0, y: 0 });
 
   const geometry = useMemo(() => buildArtifactGeometry(20), []);
 
@@ -53,13 +59,23 @@ export default function Artifact({
     return tex;
   }, [gl]);
 
+  // shared crack uniforms — read by rock material (via onBeforeCompile) and rim shader
+  const crackUniforms = useMemo(
+    () => ({
+      uCrackIntensity: { value: 0 },
+      uCrackSeed: { value: Math.random() * 100 },
+    }),
+    [],
+  );
+
   const rimUniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color("#c9793a") },
       uIntensity: { value: 0.9 },
       uPower: { value: 2.4 },
+      uCrackIntensity: crackUniforms.uCrackIntensity,
     }),
-    [],
+    [crackUniforms],
   );
 
   const rimColorSealed = useMemo(() => new THREE.Color("#c9793a"), []);
@@ -82,6 +98,13 @@ export default function Artifact({
     veinsMaterial.current.blending = THREE.AdditiveBlending;
     veinsMaterial.current.depthWrite = false;
   }, [veinsLine, size]);
+
+  // wire crack displacement into the rock material once it's mounted
+  useEffect(() => {
+    if (rockMaterial.current) {
+      applyCrackDisplacement(rockMaterial.current, crackUniforms);
+    }
+  }, [crackUniforms]);
 
   const smoothed = useRef({
     x: 0,
@@ -106,15 +129,48 @@ export default function Artifact({
     s.scale = THREE.MathUtils.lerp(s.scale, target.scale, 0.07);
     s.coreReveal = THREE.MathUtils.lerp(s.coreReveal, target.coreReveal, 0.08);
 
+    // --- pointer-driven rotation offset, additive on top of scroll-driven rotY ---
+    if (pointerRig.isDragging.current) {
+      dragRotationOffset.current.y += pointerRig.dragDelta.current.x * 0.006;
+      dragRotationOffset.current.x += pointerRig.dragDelta.current.y * 0.006;
+      pointerRig.dragDelta.current = { x: 0, y: 0 }; // consume this frame's delta
+    } else {
+      // ease the offset back toward 0 so scroll choreography reclaims full control
+      dragRotationOffset.current.x = THREE.MathUtils.lerp(
+        dragRotationOffset.current.x,
+        0,
+        0.05,
+      );
+      dragRotationOffset.current.y = THREE.MathUtils.lerp(
+        dragRotationOffset.current.y,
+        0,
+        0.05,
+      );
+    }
+
+    // --- crack ramp: rises fast + proportional to drag speed, heals slowly ---
+    const crackTarget = pointerRig.isDragging.current
+      ? Math.min(pointerRig.dragVelocity.current * 4, 1)
+      : 0;
+
+    crackIntensityRef.current = THREE.MathUtils.lerp(
+      crackIntensityRef.current,
+      crackTarget,
+      pointerRig.isDragging.current ? 0.12 : 0.04,
+    );
+    crackUniforms.uCrackIntensity.value = crackIntensityRef.current;
+
     group.current.position.set(
       s.x,
       s.y + Math.sin(t * 0.5) * 0.05 + (1 - intro) * -1.4,
       s.z,
     );
 
-    group.current.rotation.y = s.rotY + t * 0.06;
+    group.current.rotation.y = s.rotY + t * 0.06 + dragRotationOffset.current.y;
     group.current.rotation.x =
-      THREE.MathUtils.lerp(-0.25, -0.06, intro) + Math.sin(t * 0.35) * 0.012;
+      THREE.MathUtils.lerp(-0.25, -0.06, intro) +
+      Math.sin(t * 0.35) * 0.012 +
+      dragRotationOffset.current.x;
 
     group.current.scale.setScalar(
       s.scale * THREE.MathUtils.lerp(0.82, 1, intro) * responsiveScale,
@@ -138,7 +194,11 @@ export default function Artifact({
     }
 
     if (rim.current) {
-      const rimPulse = 1.015 + Math.sin(t * 1.1) * 0.004 + s.coreReveal * 0.02;
+      const rimPulse =
+        1.015 +
+        Math.sin(t * 1.1) * 0.004 +
+        s.coreReveal * 0.02 +
+        crackIntensityRef.current * 0.015;
       rim.current.scale.setScalar(rimPulse);
     }
 
@@ -147,7 +207,9 @@ export default function Artifact({
     }
     if (veinsMaterial.current) {
       veinsMaterial.current.linewidth =
-        (1.1 + s.coreReveal * 0.6) * Math.min(1, responsiveScale + 0.3);
+        (1.1 + s.coreReveal * 0.6 + crackIntensityRef.current * 0.9) *
+        Math.min(1, responsiveScale + 0.3);
+      veinsMaterial.current.opacity = 0.55 + crackIntensityRef.current * 0.4;
     }
 
     coreRevealRef.current = s.coreReveal;

@@ -94,3 +94,8 @@ body {
 .text-glow {
   text-shadow: 0 0 24px rgba(232, 169, 74, 0.35);
 }
+
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}

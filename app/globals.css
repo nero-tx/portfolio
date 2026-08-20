@@ -3,26 +3,31 @@
 @font-face {
   font-family: "circular-web";
   src: url("/fonts/circularweb-book.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "general";
   src: url("/fonts/general.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "robert-medium";
   src: url("/fonts/robert-medium.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "robert-regular";
   src: url("/fonts/robert-regular.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "zentry";
   src: url("/fonts/zentry-regular.woff2") format("woff2");
+  font-display: swap;
 }
 
 :root {
@@ -33,8 +38,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 
   --font-zentry: "zentry", sans-serif;
   --font-general: "general", sans-serif;

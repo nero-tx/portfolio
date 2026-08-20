@@ -4,6 +4,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import TransitionProvider from "@/components/TransitionProvider";
 import Header from "@/components/Header";
 import CustomCursor from "@/components/CustomCursor";
+import { AudioProvider } from "@/context/AudioProvider";
 
 export const metadata: Metadata = {
   title: "nero-tx porto",
@@ -30,15 +31,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full w-full overflow-x-hidden  flex flex-col relative">
-        <CustomCursor />
-        
-        <TransitionProvider>
-          <SmoothScroll>
-            <Header />
+        <AudioProvider>
+          <CustomCursor />
 
-            {children}
-          </SmoothScroll>
-        </TransitionProvider>
+          <TransitionProvider>
+            <SmoothScroll>
+              <Header />
+
+              {children}
+            </SmoothScroll>
+          </TransitionProvider>
+        </AudioProvider>
       </body>
     </html>
   );

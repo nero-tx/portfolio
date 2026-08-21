@@ -1,331 +1,272 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-
-type CursorState = "default" | "link" | "view" | "drag" | "text";
+import { useEffect, useRef } from "react";
 
 export default function CustomCursor() {
-  const dotRef = useRef<SVGCircleElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const diamondRef = useRef<SVGPolygonElement>(null);
-  const tickRefs = useRef<(SVGLineElement | null)[]>([]);
-  const bracketRefs = useRef<(SVGPathElement | null)[]>([]);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const reticleRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
-  const rotationTween = useRef<gsap.core.Tween | null>(null);
-
-  const [cursorState, setCursorState] = useState<CursorState>("default");
-  const [label, setLabel] = useState("");
-  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
-    const touch = window.matchMedia("(pointer: coarse)").matches;
-    setIsTouch(touch);
-    if (touch) return;
+    // Disable on touch devices
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
     document.documentElement.classList.add("custom-cursor-active");
 
-    const dot = dotRef.current!;
-    const wrapper = wrapperRef.current!;
+    const dot = dotRef.current;
+    const reticle = reticleRef.current;
+    const label = labelRef.current;
+    if (!dot || !reticle) return;
 
-    const dotX = gsap.quickTo(dot, "x", { duration: 0.08, ease: "power3.out" });
-    const dotY = gsap.quickTo(dot, "y", { duration: 0.08, ease: "power3.out" });
-    const wrapX = gsap.quickTo(wrapper, "x", {
-      duration: 0.35,
-      ease: "power3.out",
-    });
-    const wrapY = gsap.quickTo(wrapper, "y", {
-      duration: 0.25,
-      ease: "power3.out",
-    });
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let reticleX = mouseX;
+    let reticleY = mouseY;
+    let isVisible = false;
+    let isMouseDown = false;
+    let currentState = "default";
+    let rafId: number;
 
-    const onMove = (e: MouseEvent) => {
-      dotX(e.clientX);
-      dotY(e.clientY);
-      wrapX(e.clientX);
-      wrapY(e.clientY);
-    };
+    const updatePosition = (e: PointerEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
 
-    const onDown = () => setCursorState((s) => (s === "default" ? "drag" : s));
-    const onUp = () => setCursorState((s) => (s === "drag" ? "default" : s));
-
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mousedown", onDown);
-    window.addEventListener("mouseup", onUp);
-
-    let bound: HTMLElement[] = [];
-    const attach = () => {
-      bound.forEach((el) => {
-        el.removeEventListener("mouseenter", handleEnter as EventListener);
-        el.removeEventListener("mouseleave", handleLeave as EventListener);
-      });
-      bound = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-cursor]"),
-      );
-      bound.forEach((el) => {
-        el.addEventListener("mouseenter", handleEnter as EventListener);
-        el.addEventListener("mouseleave", handleLeave as EventListener);
-      });
-    };
-
-    function handleEnter(this: HTMLElement) {
-      const state = (this.dataset.cursor || "link") as CursorState;
-      setCursorState(state);
-      setLabel(this.dataset.cursorLabel || "");
-
-      if (this.dataset.cursor === "magnetic") {
-        const onMagnetMove = (e: MouseEvent) => {
-          const rect = this.getBoundingClientRect();
-          const relX = e.clientX - (rect.left + rect.width / 2);
-          const relY = e.clientY - (rect.top + rect.height / 2);
-          gsap.to(this, {
-            x: relX * 0.35,
-            y: relY * 0.35,
-            duration: 0.4,
-            ease: "power2.out",
-          });
-        };
-        const onMagnetLeave = () => {
-          gsap.to(this, {
-            x: 0,
-            y: 0,
-            duration: 0.6,
-            ease: "elastic.out(1, 0.4)",
-          });
-          this.removeEventListener("mousemove", onMagnetMove as EventListener);
-        };
-        this.addEventListener("mousemove", onMagnetMove as EventListener);
-        this.addEventListener("mouseleave", onMagnetLeave as EventListener, {
-          once: true,
-        });
+      if (!isVisible) {
+        isVisible = true;
+        dot.style.opacity = "1";
+        reticle.style.opacity = "1";
+        reticleX = mouseX;
+        reticleY = mouseY;
       }
-    }
 
-    function handleLeave() {
-      setCursorState("default");
-      setLabel("");
-    }
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+    };
 
-    attach();
-    const observer = new MutationObserver(attach);
-    observer.observe(document.body, { childList: true, subtree: true });
+    // Smooth RAF loop for the reticle (fast responsive 0.22 lerp, zero jank)
+    const loop = () => {
+      if (isVisible) {
+        const dx = mouseX - reticleX;
+        const dy = mouseY - reticleY;
+        reticleX += dx * 0.22;
+        reticleY += dy * 0.22;
+
+        reticle.style.transform = `translate3d(${reticleX}px, ${reticleY}px, 0) translate(-50%, -50%)`;
+      }
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+
+    // Event delegation for cursor hover states (O(1), zero MutationObserver, zero layout recalculations)
+    const onPointerOver = (e: PointerEvent) => {
+      const target = (e.target as HTMLElement)?.closest?.(
+        "[data-cursor]",
+      ) as HTMLElement | null;
+      if (target) {
+        const state = target.dataset.cursor || "link";
+        const labelText = target.dataset.cursorLabel || "";
+        currentState = state;
+        reticle.dataset.state = state;
+
+        if (label) {
+          label.textContent = labelText;
+          label.style.opacity = labelText ? "1" : "0";
+        }
+      }
+    };
+
+    const onPointerOut = (e: PointerEvent) => {
+      const target = (e.target as HTMLElement)?.closest?.(
+        "[data-cursor]",
+      ) as HTMLElement | null;
+      if (target) {
+        const next = (e.relatedTarget as HTMLElement)?.closest?.(
+          "[data-cursor]",
+        ) as HTMLElement | null;
+        if (!next) {
+          currentState = "default";
+          reticle.dataset.state = isMouseDown ? "drag" : "default";
+          if (label) {
+            label.textContent = "";
+            label.style.opacity = "0";
+          }
+        }
+      }
+    };
+
+    const onMouseDown = () => {
+      isMouseDown = true;
+      if (currentState === "default") {
+        reticle.dataset.state = "drag";
+      }
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) scale(1.5)`;
+    };
+
+    const onMouseUp = () => {
+      isMouseDown = false;
+      reticle.dataset.state = currentState;
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) scale(1)`;
+    };
+
+    window.addEventListener("pointermove", updatePosition, { passive: true });
+    window.addEventListener("pointerover", onPointerOver, { passive: true });
+    window.addEventListener("pointerout", onPointerOut, { passive: true });
+    window.addEventListener("mousedown", onMouseDown, { passive: true });
+    window.addEventListener("mouseup", onMouseUp, { passive: true });
 
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mouseup", onUp);
-      observer.disconnect();
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("pointermove", updatePosition);
+      window.removeEventListener("pointerover", onPointerOver);
+      window.removeEventListener("pointerout", onPointerOut);
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
       document.documentElement.classList.remove("custom-cursor-active");
     };
   }, []);
 
-  useEffect(() => {
-    if (isTouch || !diamondRef.current) return;
-    rotationTween.current = gsap.to([diamondRef.current, ...tickRefs.current], {
-      rotation: 360,
-      transformOrigin: "center",
-      duration: 8,
-      repeat: -1,
-      ease: "none",
-    });
-    return () => {
-      rotationTween.current?.kill();
-    };
-  }, [isTouch]);
-
-  useEffect(() => {
-    const diamond = diamondRef.current;
-    const ticks = tickRefs.current;
-    const brackets = bracketRefs.current;
-    if (!diamond || !brackets.length) return;
-
-    const tl = gsap.timeline({
-      defaults: { duration: 0.45, ease: "power3.out" },
-    });
-
-    // reset rotation speed
-    if (rotationTween.current) {
-      rotationTween.current.timeScale(
-        cursorState === "drag" ? 4 : cursorState === "view" ? 0 : 1,
-      );
-    }
-
-    if (cursorState === "view") {
-      // diamond dissolves, brackets snap out into a viewfinder
-      tl.to(diamond, { opacity: 0, scale: 0.6 }, 0)
-        .to(ticks, { opacity: 0 }, 0)
-        .to(
-          brackets,
-          { opacity: 1, scale: 1, stagger: 0.03, transformOrigin: "center" },
-          0.05,
-        )
-        .to(labelRef.current, { opacity: 1, scale: 1 }, 0.15);
-    } else {
-      tl.to(
-        brackets,
-        { opacity: 0, scale: 0.7, transformOrigin: "center" },
-        0,
-      ).to(
-        labelRef.current,
-        { opacity: label ? 1 : 0, scale: label ? 1 : 0.6 },
-        0,
-      );
-
-      if (cursorState === "text") {
-        tl.to(diamond, { opacity: 0, scale: 0.3 }, 0).to(
-          ticks,
-          { opacity: 0 },
-          0,
-        );
-      } else if (cursorState === "link") {
-        tl.to(diamond, { opacity: 1, scale: 1.3, stroke: "#D98C4A" }, 0).to(
-          ticks,
-          {
-            opacity: 1,
-            scale: 1.6,
-            stroke: "#D98C4A",
-            transformOrigin: "center",
-          },
-          0,
-        );
-      } else if (cursorState === "drag") {
-        tl.to(
-          diamond,
-          { opacity: 1, scale: 1.15, strokeDasharray: "4 3" },
-          0,
-        ).to(ticks, { opacity: 1, scale: 1, transformOrigin: "center" }, 0);
-      } else {
-        // default
-        tl.to(
-          diamond,
-          {
-            opacity: 1,
-            scale: 1,
-            strokeDasharray: "0 0",
-            stroke: "rgba(232,220,200,0.55)",
-          },
-          0,
-        ).to(
-          ticks,
-          {
-            opacity: 0.7,
-            scale: 1,
-            stroke: "rgba(232,220,200,0.55)",
-            transformOrigin: "center",
-          },
-          0,
-        );
-      }
-    }
-  }, [cursorState, label]);
-
-  if (isTouch) return null;
-
   return (
     <>
-      <svg
-        className="pointer-events-none fixed left-0 top-0 z-9999 overflow-visible"
-        width="1"
-        height="1}"
-      >
-        <circle ref={dotRef} r="2" fill="#E8DCC8" />
-      </svg>
-
-      {/* lagged reticle wrapper */}
       <div
-        ref={wrapperRef}
-        className="pointer-events-none fixed left-0 top-0 z-9998 -translate-x-1/2 -translate-y-1/2"
-        style={{ mixBlendMode: "difference" }}
+        ref={dotRef}
+        className="pointer-events-none fixed top-0 left-0 z-9999 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E8DCC8] opacity-0 transition-opacity duration-200 will-change-transform shadow-[0_0_8px_rgba(232,220,200,0.8)]"
+      />
+
+      <div
+        ref={reticleRef}
+        data-state="default"
+        className="cursor-reticle pointer-events-none fixed top-0 left-0 z-9998 opacity-0 will-change-transform"
       >
-        <svg
-          width="56"
-          height="56"
-          viewBox="0 0 56 56"
-          className="overflow-visible"
-        >
-          {/* diamond / facet outline */}
-          <polygon
-            ref={diamondRef}
-            points="28,10 46,28 28,46 10,28"
-            fill="none"
-            stroke="rgba(232,220,200,0.55)"
-            strokeWidth="1"
-          />
+        {/* Rotating Compass Outer Diamond */}
+        <div className="reticle-dial size-12 relative flex items-center justify-center">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            className="overflow-visible"
+          >
+            {/* Diamond frame */}
+            <polygon
+              points="24,8 40,24 24,40 8,24"
+              fill="none"
+              stroke="rgba(232, 220, 200, 0.45)"
+              strokeWidth="1"
+              className="reticle-diamond transition-all duration-300 ease-out"
+            />
+            {/* Compass Ticks: N, E, S, W */}
+            <line
+              x1="24"
+              y1="0"
+              x2="24"
+              y2="5"
+              stroke="rgba(217, 140, 74, 0.7)"
+              strokeWidth="1"
+            />
+            <line
+              x1="43"
+              y1="24"
+              x2="48"
+              y2="24"
+              stroke="rgba(217, 140, 74, 0.7)"
+              strokeWidth="1"
+            />
+            <line
+              x1="24"
+              y1="43"
+              x2="24"
+              y2="48"
+              stroke="rgba(217, 140, 74, 0.7)"
+              strokeWidth="1"
+            />
+            <line
+              x1="0"
+              y1="24"
+              x2="5"
+              y2="24"
+              stroke="rgba(217, 140, 74, 0.7)"
+              strokeWidth="1"
+            />
 
-          {/* compass ticks: N E S W */}
-          <line
-            ref={(el) => {
-              tickRefs.current[0] = el;
-            }}
-            x1="28"
-            y1="0"
-            x2="28"
-            y2="6"
-            stroke="rgba(232,220,200,0.55)"
-            strokeWidth="1"
-          />
-          <line
-            ref={(el) => {
-              tickRefs.current[1] = el;
-            }}
-            x1="50"
-            y1="28"
-            x2="56"
-            y2="28"
-            stroke="rgba(232,220,200,0.55)"
-            strokeWidth="1"
-          />
-          <line
-            ref={(el) => {
-              tickRefs.current[2] = el;
-            }}
-            x1="28"
-            y1="50"
-            x2="28"
-            y2="56"
-            stroke="rgba(232,220,200,0.55)"
-            strokeWidth="1"
-          />
-          <line
-            ref={(el) => {
-              tickRefs.current[3] = el;
-            }}
-            x1="0"
-            y1="28"
-            x2="6"
-            y2="28"
-            stroke="rgba(232,220,200,0.55)"
-            strokeWidth="1"
-          />
-
-          {/* viewfinder corner brackets (hidden until "view" state) */}
-          {[
-            "M4,14 L4,4 L14,4",
-            "M42,4 L52,4 L52,14",
-            "M52,42 L52,52 L42,52",
-            "M14,52 L4,52 L4,42",
-          ].map((d, i) => (
+            {/* Viewfinder Brackets (Visible in "view" state) */}
             <path
-              key={d}
-              ref={(el) => {
-                bracketRefs.current[i] = el;
-              }}
-              d={d}
+              d="M4,12 L4,4 L12,4"
               fill="none"
               stroke="#D98C4A"
               strokeWidth="1.5"
-              opacity="0"
+              className="bracket-tl opacity-0 transition-opacity duration-300"
             />
-          ))}
-        </svg>
+            <path
+              d="M36,4 L44,4 L44,12"
+              fill="none"
+              stroke="#D98C4A"
+              strokeWidth="1.5"
+              className="bracket-tr opacity-0 transition-opacity duration-300"
+            />
+            <path
+              d="M44,36 L44,44 L36,44"
+              fill="none"
+              stroke="#D98C4A"
+              strokeWidth="1.5"
+              className="bracket-br opacity-0 transition-opacity duration-300"
+            />
+            <path
+              d="M12,44 L4,44 L4,36"
+              fill="none"
+              stroke="#D98C4A"
+              strokeWidth="1.5"
+              className="bracket-bl opacity-0 transition-opacity duration-300"
+            />
+          </svg>
+        </div>
 
+        {/* Tactical HUD Label */}
         <span
           ref={labelRef}
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.2em] text-[#E8DCC8] opacity-0"
-        >
-          {label}
-        </span>
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.25em] text-[#E8DCC8] opacity-0 transition-all duration-300 bg-[#0a0806]/85 px-1.5 py-0.5 rounded border border-[#D98C4A]/40"
+        />
       </div>
+
+      <style>{`
+        /* 60fps / 120fps CSS GPU-driven state transitions */
+        .reticle-dial {
+          animation: reticle-spin 12s linear infinite;
+        }
+
+        @keyframes reticle-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .cursor-reticle[data-state="link"] .reticle-diamond {
+          transform: scale(1.3);
+          transform-origin: center;
+          stroke: #D98C4A;
+          stroke-width: 1.5;
+        }
+
+        .cursor-reticle[data-state="drag"] .reticle-diamond {
+          transform: scale(1.15);
+          transform-origin: center;
+          stroke-dasharray: 4 3;
+          stroke: #D98C4A;
+        }
+
+        .cursor-reticle[data-state="view"] .reticle-diamond {
+          opacity: 0;
+          transform: scale(0.6);
+          transform-origin: center;
+        }
+
+        .cursor-reticle[data-state="view"] .bracket-tl,
+        .cursor-reticle[data-state="view"] .bracket-tr,
+        .cursor-reticle[data-state="view"] .bracket-br,
+        .cursor-reticle[data-state="view"] .bracket-bl {
+          opacity: 1;
+        }
+
+        .cursor-reticle[data-state="view"] .reticle-dial {
+          animation-play-state: paused;
+        }
+      `}</style>
     </>
   );
 }

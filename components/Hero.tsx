@@ -47,11 +47,6 @@ export default function Hero() {
         opacity: 0,
       });
 
-      gsap.set(".hero-meta", {
-        y: -15,
-        opacity: 0,
-      });
-
       gsap.set(".hero-side-label", {
         x: 15,
         opacity: 0,
@@ -111,17 +106,6 @@ export default function Hero() {
             ease: "power3.out",
           },
           0.85,
-        )
-
-        // top metadata
-        .to(
-          ".hero-meta",
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.75,
-          },
-          0.6,
         )
 
         // right label
@@ -221,17 +205,6 @@ export default function Hero() {
           yPercent: 80,
           opacity: 0,
           duration: 0.7,
-        },
-        0,
-      );
-
-      // TOP META
-      scrollTl.to(
-        ".hero-meta",
-        {
-          yPercent: -120,
-          opacity: 0,
-          duration: 0.6,
         },
         0,
       );

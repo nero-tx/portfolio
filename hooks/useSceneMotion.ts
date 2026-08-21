@@ -36,69 +36,124 @@ export function useSceneMotion() {
 
       artifactMotion.current.coreReveal = 0;
 
+      // Act 2: About (Inspection Profile)
       ScrollTrigger.create({
         trigger: "#about",
         start: "top bottom",
         end: "top top",
-        scrub: 1,
+        scrub: 1.2,
         animation: gsap
           .timeline()
           .to(
             artifactMotion.current,
             {
-              x: 1.1,
-              rotY: Math.PI * 0.9,
-              scale: 0.85,
-              coreReveal: 0.22,
+              x: 1.15,
+              rotY: Math.PI * 0.95,
+              scale: 0.88,
+              coreReveal: 0.25,
               ease: "none",
             },
             0,
           )
           .to(
             cameraMotion.current,
-            { x: 0.4, y: 0.3, z: 4.0, fov: 30, ease: "none" },
+            { x: 0.45, y: 0.2, z: 4.2, fov: 28, ease: "none" },
             0,
           ),
       });
 
+      // Act 2.5: Deep Scan (Holtzman Disintegration & Core Charge)
       ScrollTrigger.create({
-        trigger: "#work",
+        trigger: "#deep-scan",
         start: "top bottom",
         end: "top top",
-        scrub: 1,
-        animation: gsap
-          .timeline()
-          .to(
-            artifactMotion.current,
-            {
-              x: -0.35,
-              rotY: Math.PI * 1.6,
-              scale: 1.3,
-              coreReveal: 1,
-              ease: "none",
-            },
-            0,
-          )
-          .to(
-            cameraMotion.current,
-            { x: -0.15, y: 0.05, z: 3.6, fov: 30, ease: "none" },
-            0,
-          ),
-      });
-
-      ScrollTrigger.create({
-        trigger: "#contact",
-        start: "top bottom",
-        end: "top top",
-        scrub: 1,
+        scrub: 1.2,
         animation: gsap
           .timeline()
           .to(
             artifactMotion.current,
             {
               x: 0,
-              rotY: Math.PI * 2.1,
+              rotY: Math.PI * 1.45,
+              scale: 1.15,
+              coreReveal: 0.65,
+              ease: "none",
+            },
+            0,
+          )
+          .to(
+            cameraMotion.current,
+            { x: 0, y: 0.1, z: 3.8, fov: 29, ease: "none" },
+            0,
+          ),
+      });
+
+      // Act 3: Work (Core Ignition & Fracture)
+      ScrollTrigger.create({
+        trigger: "#work",
+        start: "top bottom",
+        end: "top top",
+        scrub: 1.2,
+        animation: gsap
+          .timeline()
+          .to(
+            artifactMotion.current,
+            {
+              x: -0.45,
+              rotY: Math.PI * 1.85,
               scale: 1,
+              coreReveal: 1.0,
+              ease: "none",
+            },
+            0,
+          )
+          .to(
+            cameraMotion.current,
+            { x: -0.2, y: 0.05, z: 3.5, fov: 30, ease: "none" },
+            0,
+          ),
+      });
+
+      // Act 4: Capabilities (Systems Matrix)
+      ScrollTrigger.create({
+        trigger: "#capabilities",
+        start: "top bottom",
+        end: "top top",
+        scrub: 1.2,
+        animation: gsap
+          .timeline()
+          .to(
+            artifactMotion.current,
+            {
+              x: 0.85,
+              rotY: Math.PI * 2.65,
+              scale: 0.92,
+              coreReveal: 0.45,
+              ease: "none",
+            },
+            0,
+          )
+          .to(
+            cameraMotion.current,
+            { x: 0.35, y: 0.15, z: 4.2, fov: 29, ease: "none" },
+            0,
+          ),
+      });
+
+      // Act 5: Contact (Equilibrium & Transmission)
+      ScrollTrigger.create({
+        trigger: "#contact",
+        start: "top bottom",
+        end: "top top",
+        scrub: 1.2,
+        animation: gsap
+          .timeline()
+          .to(
+            artifactMotion.current,
+            {
+              x: 0,
+              rotY: Math.PI * 3.4,
+              scale: 0.95,
               coreReveal: 0.35,
               ease: "none",
             },

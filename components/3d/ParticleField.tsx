@@ -18,14 +18,16 @@ function buildDotTexture(): THREE.Texture {
     size / 2,
     size / 2,
   );
-  gradient.addColorStop(0, "rgba(255,214,150,0.9)");
-  gradient.addColorStop(1, "rgba(255,214,150,0.2)");
+  gradient.addColorStop(0, "rgba(255,255,255,1.0)");
+  gradient.addColorStop(0.2, "rgba(255,220,160,0.85)");
+  gradient.addColorStop(0.5, "rgba(255,160,80,0.35)");
+  gradient.addColorStop(1, "rgba(255,140,50,0.0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);
   return new THREE.CanvasTexture(canvas);
 }
 
-const COUNT = 500;
+const COUNT = 450;
 
 export default function ParticleField() {
   const points = useRef<THREE.Points>(null);
@@ -34,26 +36,62 @@ export default function ParticleField() {
     [],
   );
 
-  const [positions, speeds] = useMemo(() => {
+  const [positions, colors, speeds, phases] = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
+    const col = new Float32Array(COUNT * 3);
     const spd = new Float32Array(COUNT);
+    const phs = new Float32Array(COUNT);
+
+    const warmA = new THREE.Color("#ffc470");
+    const warmB = new THREE.Color("#ff8838");
+    const cool = new THREE.Color("#5fb8c9");
+    const temp = new THREE.Color();
+
     for (let i = 0; i < COUNT; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 9;
-      pos[i * 3 + 1] = Math.random() * 5 - 2;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 9;
-      spd[i] = 0.05 + Math.random() * 0.12;
+      pos[i * 3] = (Math.random() - 0.5) * 14;
+      pos[i * 3 + 1] = Math.random() * 7 - 3;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+
+      spd[i] = 0.04 + Math.random() * 0.1;
+      phs[i] = Math.random() * Math.PI * 2;
+
+      const r = Math.random();
+      if (r < 0.65) {
+        temp.copy(warmA);
+      } else if (r < 0.88) {
+        temp.copy(warmB);
+      } else {
+        temp.copy(cool);
+      }
+
+      col[i * 3] = temp.r;
+      col[i * 3 + 1] = temp.g;
+      col[i * 3 + 2] = temp.b;
     }
-    return [pos, spd];
+    return [pos, col, spd, phs];
   }, []);
 
   useFrame((state, delta) => {
     if (!points.current) return;
+    const time = state.clock.elapsedTime;
     const arr = points.current.geometry.attributes.position
       .array as Float32Array;
+
     for (let i = 0; i < COUNT; i++) {
-      arr[i * 3 + 1] += speeds[i] * delta;
-      arr[i * 3] += Math.sin(state.clock.elapsedTime * 0.3 + i) * 0.0007;
-      if (arr[i * 3 + 1] > 3) arr[i * 3 + 1] = -2;
+      const idx = i * 3;
+      // Upward thermal drift
+      arr[idx + 1] += speeds[i] * delta;
+
+      // Gentle organic sinusoidal turbulence
+      arr[idx] += Math.sin(time * 0.35 + phases[i]) * 0.0012;
+      arr[idx + 2] += Math.cos(time * 0.28 + phases[i] * 1.3) * 0.001;
+
+      // Reset when floating too high
+      if (arr[idx + 1] > 3.8) {
+        arr[idx + 1] = -2.8;
+        arr[idx] = (Math.random() - 0.5) * 14;
+        arr[idx + 2] = (Math.random() - 0.5) * 12;
+      }
     }
     points.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -64,16 +102,18 @@ export default function ParticleField() {
     <points ref={points}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
 
       <pointsMaterial
-        size={0.045}
+        size={0.048}
         map={texture}
+        vertexColors
         transparent
-        opacity={0.5}
+        opacity={0.65}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        color="#e8a94a"
+        sizeAttenuation
       />
     </points>
   );

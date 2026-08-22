@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Hero from "@/components/Hero";
 import dynamic from "next/dynamic";
+import About from "@/components/About";
 const Scene = dynamic(() => import("@/components/3d/Scene"), {
   ssr: false,
 });
@@ -28,17 +29,7 @@ export default function Page() {
 
       <div className="relative z-10">
         <Hero />
-        <section
-          id="about"
-          className="h-screen flex flex-col justify-center px-8 md:px-16"
-        >
-          <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#D98C4A] mb-4">
-            01 — About
-          </span>
-          <h2 className="font-serif text-4xl md:text-6xl text-[#E8DCC8] max-w-2xl">
-            Every facet catches the light differently.
-          </h2>
-        </section>
+        <About />
 
         <section
           id="work"

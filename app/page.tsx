@@ -1,22 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Hero from "@/components/Hero";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
+import Hero from "@/components/Hero";
 import About from "@/components/About";
+
 const Scene = dynamic(() => import("@/components/3d/Scene"), {
   ssr: false,
 });
 
-function SceneLayer() {
+gsap.registerPlugin(ScrollTrigger);
+
+const HIDDEN_SELECTORS = ["#contact"] as const;
+
+function SceneLayer({
+  hideOnSelectors,
+}: {
+  hideOnSelectors: readonly string[];
+}) {
   const [mounted, setMounted] = useState(false);
+  const [active, setActive] = useState(true);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!mounted || !wrapperRef.current) return;
+    const wrapper = wrapperRef.current;
+
+    const triggers = hideOnSelectors
+      .map((selector) => document.querySelector(selector))
+      .filter((el): el is Element => Boolean(el))
+      .map((el) =>
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 65%",
+          end: "bottom 35%",
+          onToggle: (self) => {
+            gsap.to(wrapper, {
+              opacity: self.isActive ? 0 : 1,
+              duration: 0.6,
+              ease: "power2.out",
+              overwrite: true,
+              onStart: () => {
+                if (!self.isActive) setActive(true);
+              },
+              onComplete: () => {
+                if (self.isActive) setActive(false);
+              },
+            });
+          },
+        }),
+      );
+
+    return () => triggers.forEach((t) => t.kill());
+  }, [mounted, hideOnSelectors]);
+
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 -z-10 pointer-events-none">
-      <Scene />
+    <div ref={wrapperRef} className="fixed inset-0 -z-10 pointer-events-none">
+      <Scene frameloop={active ? "always" : "never"} />
     </div>,
     document.body,
   );
@@ -25,7 +72,7 @@ function SceneLayer() {
 export default function Page() {
   return (
     <>
-      <SceneLayer />
+      <SceneLayer hideOnSelectors={HIDDEN_SELECTORS} />
 
       <div className="relative z-10">
         <Hero />

@@ -167,10 +167,9 @@ export default function About() {
 
       <div data-cursor="text" className="mx-auto container px-6 md:px-12 mb-20">
         <h2 className="about-context font-robert-medium text-[clamp(2rem,3.8vw,4.5rem)] leading-[1.05] text-[#E8DCC830]">
-          I build digital products where engineering meets experience —
-          designing scalable systems, solving complex problems, and turning
-          ideas into fast, reliable, and thoughtful interfaces. I care about how
-          things work beneath the surface just as much as how they feel on it.
+          <span className="w-1/12 inline-block" /> Good code. Sharp ideas. Zero
+          boring interfaces. Building digital experiences that look good, work
+          fast, and Making complex things feel simple
         </h2>
       </div>
 

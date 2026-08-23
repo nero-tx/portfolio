@@ -9,6 +9,7 @@ import Ground from "./Ground";
 import ParticleField from "./ParticleField";
 import { useSceneMotion } from "@/hooks/useSceneMotion";
 import type { CameraMotionState } from "@/utils/artifactMotion";
+import { Frameloop } from "@react-three/fiber";
 
 function CameraRig({
   cameraMotion,
@@ -48,13 +49,14 @@ function CameraRig({
   return null;
 }
 
-export default function Scene() {
+export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop }) {
   const { artifactMotion, cameraMotion, introRef } = useSceneMotion();
 
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
+      frameloop={frameloop}
       gl={{
         antialias: true,
         powerPreference: "high-performance",

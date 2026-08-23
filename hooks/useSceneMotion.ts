@@ -62,32 +62,6 @@ export function useSceneMotion() {
           ),
       });
 
-      // Act 2.5: Deep Scan (Holtzman Disintegration & Core Charge)
-      ScrollTrigger.create({
-        trigger: "#deep-scan",
-        start: "top bottom",
-        end: "top top",
-        scrub: 1.2,
-        animation: gsap
-          .timeline()
-          .to(
-            artifactMotion.current,
-            {
-              x: 0,
-              rotY: Math.PI * 1.45,
-              scale: 1.15,
-              coreReveal: 0.65,
-              ease: "none",
-            },
-            0,
-          )
-          .to(
-            cameraMotion.current,
-            { x: 0, y: 0.1, z: 3.8, fov: 29, ease: "none" },
-            0,
-          ),
-      });
-
       // Act 3: Work (Core Ignition & Fracture)
       ScrollTrigger.create({
         trigger: "#work",
@@ -114,33 +88,7 @@ export function useSceneMotion() {
           ),
       });
 
-      // Act 4: Capabilities (Systems Matrix)
-      ScrollTrigger.create({
-        trigger: "#capabilities",
-        start: "top bottom",
-        end: "top top",
-        scrub: 1.2,
-        animation: gsap
-          .timeline()
-          .to(
-            artifactMotion.current,
-            {
-              x: 0.85,
-              rotY: Math.PI * 2.65,
-              scale: 0.92,
-              coreReveal: 0.45,
-              ease: "none",
-            },
-            0,
-          )
-          .to(
-            cameraMotion.current,
-            { x: 0.35, y: 0.15, z: 4.2, fov: 29, ease: "none" },
-            0,
-          ),
-      });
-
-      // Act 5: Contact (Equilibrium & Transmission)
+      // Act 4: Contact (Equilibrium & Transmission)
       ScrollTrigger.create({
         trigger: "#contact",
         start: "top bottom",
@@ -152,7 +100,7 @@ export function useSceneMotion() {
             artifactMotion.current,
             {
               x: 0,
-              rotY: Math.PI * 3.4,
+              rotY: Math.PI * 2.6,
               scale: 0.95,
               coreReveal: 0.35,
               ease: "none",

@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
+import Services from "@/components/Services";
 
 const Scene = dynamic(() => import("@/components/3d/Scene"), {
   ssr: false,
@@ -14,7 +15,7 @@ const Scene = dynamic(() => import("@/components/3d/Scene"), {
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HIDDEN_SELECTORS = ["#contact"] as const;
+const HIDDEN_SELECTORS = ["#contact", "#services"] as const;
 
 function SceneLayer({
   hideOnSelectors,
@@ -77,6 +78,8 @@ export default function Page() {
       <div className="relative z-10">
         <Hero />
         <About />
+
+        <Services />
 
         <section
           id="work"

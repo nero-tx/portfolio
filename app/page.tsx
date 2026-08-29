@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Services from "@/components/Services";
+import Work from "@/components/Work";
 
 const Scene = dynamic(() => import("@/components/3d/Scene"), {
   ssr: false,
@@ -15,7 +16,7 @@ const Scene = dynamic(() => import("@/components/3d/Scene"), {
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HIDDEN_SELECTORS = ["#contact", "#services"] as const;
+const HIDDEN_SELECTORS = ["#services"] as const;
 
 function SceneLayer({
   hideOnSelectors,
@@ -81,17 +82,7 @@ export default function Page() {
 
         <Services />
 
-        <section
-          id="work"
-          className="min-h-[150vh] flex flex-col justify-center px-8 md:px-16"
-        >
-          <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#D98C4A] mb-4">
-            02 — Work
-          </span>
-          <h2 className="font-serif text-4xl md:text-6xl text-[#E8DCC8] max-w-2xl">
-            Beneath the surface, something keeps burning.
-          </h2>
-        </section>
+        <Work />
 
         <section
           id="contact"

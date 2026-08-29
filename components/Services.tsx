@@ -4,78 +4,9 @@ import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ImageReveal from "./ImageReveal";
+import { services } from "@/utils/main-data";
 
 gsap.registerPlugin(ScrollTrigger);
-
-type Service = {
-  title: string;
-  description: string;
-  tags: string[];
-};
-
-const services: Service[] = [
-  {
-    title: "Brand Strategy",
-    description:
-      "Turning ideas into clear products, stronger direction, and better decisions.",
-    tags: [
-      "Research & Insights",
-      "Product Strategy",
-      "Brand Strategy",
-      "Workshops",
-      "Naming & Copywriting",
-      "UX Direction",
-      "Technical Discovery",
-    ],
-  },
-  {
-    title: "Engineering",
-    description:
-      "Building reliable products and scalable systems from interface to infrastructure.",
-    tags: [
-      "Frontend",
-      "Backend",
-      "Full-Stack",
-      "APIs",
-      "System Architecture",
-      "Database Design",
-      "Scalable Systems",
-      "Integrations",
-      "Performance",
-      "Cloud",
-    ],
-  },
-  {
-    title: "AI",
-    description:
-      "Adding intelligence to products through AI-powered workflows, automation, and agents.",
-    tags: [
-      "AI Integration",
-      "AI Agents",
-      "LLM Workflows",
-      "AI APIs",
-      "Automation",
-      "RAG",
-      "Tool Calling",
-      "AI Products",
-      "Observability",
-    ],
-  },
-  {
-    title: "Experiences",
-    description:
-      "Creating expressive digital experiences through interaction, motion, and visual experimentation.",
-    tags: [
-      "Creative Development",
-      "Motion",
-      "Interactions",
-      "Animations",
-      "Visual Systems",
-      "Immersive UI",
-      "Prototyping",
-    ],
-  },
-];
 
 export default function Services() {
   const sectionRef = useRef<HTMLElement | null>(null);

@@ -181,7 +181,7 @@ export default function ColumnTransitionProvider({
         return () => tl.kill();
       }}
     >
-      <div ref={wrapperRef} className="will-change-[transform,filter]">
+      <div ref={wrapperRef}>
         {children}
       </div>
 

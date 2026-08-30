@@ -31,8 +31,8 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0806;
+  --background: #070503;
+  --foreground: #E8DCC8;
 }
 
 @theme inline {
@@ -48,9 +48,10 @@
 }
 
 body {
-  background: var(--foreground);
-  color: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-robert-regular), sans-serif;
+  min-height: 100vh;
 }
 
 @utility special-font {
@@ -58,7 +59,35 @@ body {
   font-feature-settings: "ss01" on;
 }
 
-/* @layer components {} */
+/* Unified Global Atmospheric Background Canvas */
+.global-dune-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background-color: #070503;
+  overflow: hidden;
+}
+
+.global-dune-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(232, 220, 200, 0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232, 220, 200, 0.018) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 60%, transparent 100%);
+}
+
+.global-dune-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(217, 140, 74, 0.07), transparent 45%),
+    radial-gradient(circle at 85% 35%, rgba(95, 184, 201, 0.04), transparent 40%),
+    radial-gradient(circle at 50% 75%, rgba(217, 140, 74, 0.06), transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(180, 120, 55, 0.05), transparent 45%);
+}
 
 .grain-overlay {
   position: fixed;
@@ -66,8 +95,8 @@ body {
   z-index: 60;
   pointer-events: none;
   mix-blend-mode: overlay;
-  opacity: 0.16;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 180px 180px;
 }
 
@@ -78,24 +107,19 @@ body {
   pointer-events: none;
   background:
     radial-gradient(
-      120% 90% at 50% 115%,
-      rgba(232, 169, 74, 0.16) 0%,
-      rgba(232, 169, 74, 0) 45%
-    ),
-    radial-gradient(
       140% 100% at 50% 0%,
-      rgba(0, 0, 0, 0) 40%,
-      rgba(0, 0, 0, 0.75) 100%
+      rgba(0, 0, 0, 0) 50%,
+      rgba(4, 3, 2, 0.8) 100%
     ),
     radial-gradient(
       100% 100% at 50% 50%,
-      rgba(0, 0, 0, 0) 55%,
-      rgba(0, 0, 0, 0.55) 100%
+      rgba(0, 0, 0, 0) 60%,
+      rgba(4, 3, 2, 0.6) 100%
     );
 }
 
 .text-glow {
-  text-shadow: 0 0 24px rgba(232, 169, 74, 0.35);
+  text-shadow: 0 0 24px rgba(217, 140, 74, 0.35);
 }
 
 .custom-cursor-active,

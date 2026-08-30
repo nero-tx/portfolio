@@ -7,13 +7,12 @@ import CustomCursor from "@/components/CustomCursor";
 import { AudioProvider } from "@/context/AudioProvider";
 
 export const metadata: Metadata = {
-  title: "nero-tx porto",
+  title: "nero-tx",
   description: "Just give me the tonue and I will make it happen.",
-
-  authors: [{ name: "tarek fawzy" }],
+  authors: [{ name: "Tarek Fawzy" }],
   category: "portfolio",
-  creator: "tarek fawzy",
-  publisher: "tarek fawzy",
+  creator: "Tarek Fawzy",
+  publisher: "Tarek Fawzy",
   robots: {
     index: true,
     follow: true,
@@ -29,8 +28,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full w-full overflow-x-hidden  flex flex-col relative">
+    <html lang="en" className="antialiased" suppressHydrationWarning>
+      <body className="w-full overflow-x-hidden flex flex-col relative">
         <AudioProvider>
           <CustomCursor />
 

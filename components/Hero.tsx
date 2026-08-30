@@ -1,270 +1,200 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowDown } from "lucide-react";
+import dynamic from "next/dynamic";
+import { ArrowDown, Radio, Cpu, ShieldCheck, Zap, Server } from "lucide-react";
+
+const Scene = dynamic(() => import("@/components/3d/Scene"), {
+  ssr: false,
+});
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const [activeBeat, setActiveBeat] = useState<number>(1);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const split = new SplitText(".hero-title", {
+      // 1. Initial Intro Animation for Title & Badges
+      const split = new SplitText(".hero-main-title", {
         type: "chars",
       });
 
-      const chars = split.chars;
-
-      gsap.set(chars, {
+      gsap.set(split.chars, {
         yPercent: 120,
         opacity: 0,
         rotateX: -35,
         transformOrigin: "50% 100%",
       });
 
-      gsap.set(".hero-eyebrow", {
-        y: 18,
-        opacity: 0,
-        filter: "blur(8px)",
+      gsap.set(".hero-frame-h", { scaleX: 0, transformOrigin: "left" });
+      gsap.set(".hero-frame-v", { scaleY: 0, transformOrigin: "top" });
+      gsap.set(".hero-beat-1-content", { autoAlpha: 0, y: 20 });
+      gsap.set(".hero-telemetry-sidebar", { autoAlpha: 0, x: 20 });
+      gsap.set(".hero-drag-hint", { autoAlpha: 0, scale: 0.9 });
+
+      const introTl = gsap.timeline({
+        defaults: { ease: "power4.out" },
       });
 
-      gsap.set(".hero-description", {
-        y: 25,
-        opacity: 0,
-      });
-
-      gsap.set(".hero-bottom-description", {
-        y: 20,
-        opacity: 0,
-      });
-
-      gsap.set(".hero-scroll", {
-        y: 20,
-        opacity: 0,
-      });
-
-      gsap.set(".hero-side-label", {
-        x: 15,
-        opacity: 0,
-      });
-
-      gsap.set(".hero-frame-line", {
-        scaleX: 0,
-        transformOrigin: "left",
-      });
-
-      gsap.set(".hero-vertical-line", {
-        scaleY: 0,
-        transformOrigin: "top",
-      });
-
-      // INTRO
-      const intro = gsap.timeline({
-        defaults: {
-          ease: "power4.out",
-        },
-      });
-
-      intro
-        // eyebrow
+      introTl
         .to(
-          ".hero-eyebrow",
-          {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.8,
-          },
-          0.15,
+          ".hero-frame-h",
+          { scaleX: 1, duration: 1.2, ease: "power3.inOut" },
+          0.3,
         )
-
-        // title
         .to(
-          chars,
+          ".hero-frame-v",
+          { scaleY: 1, duration: 1.1, ease: "power3.inOut" },
+          0.4,
+        )
+        .to(
+          split.chars,
           {
             yPercent: 0,
             opacity: 1,
             rotateX: 0,
-            duration: 1.15,
+            duration: 1.2,
             stagger: 0.035,
-            ease: "power4.out",
           },
-          0.3,
+          0.45,
         )
-
-        // intro paragraph
+        .to(".hero-beat-1-content", { autoAlpha: 1, y: 0, duration: 0.9 }, 0.8)
         .to(
-          ".hero-description",
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.85,
-            ease: "power3.out",
-          },
-          0.85,
+          ".hero-telemetry-sidebar",
+          { autoAlpha: 1, x: 0, duration: 0.8 },
+          0.9,
         )
+        .to(".hero-drag-hint", { autoAlpha: 1, scale: 1, duration: 0.8 }, 1.1);
 
-        // right label
-        .to(
-          ".hero-side-label",
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.75,
-          },
-          0.75,
-        )
-
-        // horizontal frame
-        .to(
-          ".hero-frame-line",
-          {
-            scaleX: 1,
-            duration: 1,
-            ease: "power3.inOut",
-          },
-          0.55,
-        )
-
-        // vertical frame
-        .to(
-          ".hero-vertical-line",
-          {
-            scaleY: 1,
-            duration: 1.1,
-            ease: "power3.inOut",
-          },
-          0.5,
-        )
-
-        // bottom statement
-        .to(
-          ".hero-bottom-description",
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-          },
-          1.05,
-        )
-
-        // scroll indicator
-        .to(
-          ".hero-scroll",
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.75,
-          },
-          1.25,
-        );
-
-      // SCROLL
+      // 2. Multi-Beat Scroll Scrubbed Storyline (4 Beats)
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
           start: "top top",
           end: "bottom bottom",
           scrub: 1.2,
+          onUpdate: (self) => {
+            const p = self.progress;
+            if (p < 0.24) setActiveBeat(1);
+            else if (p < 0.52) setActiveBeat(2);
+            else if (p < 0.76) setActiveBeat(3);
+            else setActiveBeat(4);
+          },
         },
       });
 
-      // MAIN TITLE
-      scrollTl.to(
-        ".hero-copy",
-        {
-          xPercent: -18,
-          yPercent: -10,
-          opacity: 0.3,
-          scale: 0.92,
-          duration: 1,
-          ease: "power2.inOut",
-        },
-        0,
-      );
+      // BEAT 1 -> BEAT 2 TRANSITION
+      scrollTl
+        .to(
+          ".hero-beat-1-group",
+          {
+            yPercent: -60,
+            opacity: 0,
+            scale: 0.92,
+            filter: "blur(8px)",
+            duration: 0.28,
+            ease: "power2.inOut",
+          },
+          0,
+        )
+        .to(
+          ".hero-drag-hint",
+          {
+            opacity: 0,
+            y: -15,
+            duration: 0.18,
+          },
+          0,
+        )
+        // Reveal Beat 2: Tactical Scan & Architecture Philosophy
+        .fromTo(
+          ".hero-beat-2-group",
+          { opacity: 0, yPercent: 60, filter: "blur(8px)" },
+          {
+            opacity: 1,
+            yPercent: 0,
+            filter: "blur(0px)",
+            duration: 0.32,
+            ease: "power2.out",
+          },
+          0.22,
+        )
 
-      // EYEBROW
-      scrollTl.to(
-        ".hero-eyebrow",
-        {
-          yPercent: -100,
-          opacity: 0,
-          duration: 0.6,
-        },
-        0,
-      );
+        // BEAT 2 -> BEAT 3 TRANSITION (Hyper-Drive)
+        .to(
+          ".hero-beat-2-group",
+          {
+            yPercent: -60,
+            opacity: 0,
+            filter: "blur(8px)",
+            duration: 0.28,
+            ease: "power2.inOut",
+          },
+          0.5,
+        )
+        // Reveal Beat 3: Capabilities Manifesto
+        .fromTo(
+          ".hero-beat-3-group",
+          { opacity: 0, yPercent: 60, filter: "blur(8px)" },
+          {
+            opacity: 1,
+            yPercent: 0,
+            filter: "blur(0px)",
+            duration: 0.32,
+            ease: "power2.out",
+          },
+          0.54,
+        )
+        .fromTo(
+          ".hero-metrics-cluster",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.06 },
+          0.58,
+        )
 
-      // DESCRIPTION
-      scrollTl.to(
-        ".hero-description",
-        {
-          yPercent: 80,
-          opacity: 0,
-          duration: 0.7,
-        },
-        0,
-      );
-
-      // BOTTOM DESCRIPTION
-      scrollTl.to(
-        ".hero-bottom-description",
-        {
-          yPercent: 80,
-          opacity: 0,
-          duration: 0.65,
-        },
-        0.05,
-      );
-
-      // SIDE LABEL
-      scrollTl.to(
-        ".hero-side-label",
-        {
-          xPercent: 100,
-          opacity: 0,
-          duration: 0.65,
-        },
-        0,
-      );
-
-      // SCROLL INDICATOR
-      scrollTl.to(
-        ".hero-scroll",
-        {
-          y: -30,
-          opacity: 0,
-          duration: 0.35,
-          ease: "power2.in",
-        },
-        0,
-      );
-
-      // FRAME
-      scrollTl.to(
-        ".hero-frame-line",
-        {
-          scaleX: 0,
-          transformOrigin: "right",
-          opacity: 0,
-          duration: 0.7,
-        },
-        0.15,
-      );
-
-      scrollTl.to(
-        ".hero-vertical-line",
-        {
-          scaleY: 0,
-          transformOrigin: "bottom",
-          opacity: 0,
-          duration: 0.7,
-        },
-        0.15,
-      );
+        // BEAT 3 -> BEAT 4 TRANSITION (The Recruiter Outro: Production Protocol)
+        .to(
+          ".hero-beat-3-group",
+          {
+            yPercent: -60,
+            opacity: 0,
+            filter: "blur(8px)",
+            duration: 0.28,
+            ease: "power2.inOut",
+          },
+          0.74,
+        )
+        // Reveal Beat 4 Outro Matrix
+        .fromTo(
+          ".hero-beat-4-outro",
+          { opacity: 0, yPercent: 50, scale: 0.94, filter: "blur(10px)" },
+          {
+            opacity: 1,
+            yPercent: 0,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: 0.36,
+            ease: "power3.out",
+          },
+          0.78,
+        )
+        .fromTo(
+          ".outro-card",
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            stagger: 0.08,
+            ease: "power2.out",
+          },
+          0.82,
+        );
 
       return () => {
         split.revert();
@@ -275,86 +205,193 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} id="hero" className="relative h-[180vh] pointer-events-none select-none">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="pointer-events-none absolute left-[5.8rem top-0 z-10 hidden h-full w-px bg-white/5 md:block">
-          <div className="hero-vertical-line absolute left-0 top-0 h-[32%] w-full bg-linear-to-b from-transparent via-[#D98C4A] to-transparent" />
+    <section
+      ref={heroRef}
+      id="hero"
+      className="relative h-[380vh] w-full bg-transparent"
+    >
+      <div className="sticky top-0 h-screen w-full overflow-hidden select-none">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Scene frameloop="always" />
         </div>
 
-        <div className="hero-copy absolute left-6 top-[21%] z-20 md:left-[9vw] md:top-[24%]">
-          <div className="max-w-160">
-            <div className="hero-eyebrow mb-5 flex items-center gap-4">
-              <span className="h-px w-8 bg-[#D98C4A]/70" />
+        <div
+          data-cursor="drag"
+          data-cursor-label="DRAG TO ROTATE"
+          className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
+          aria-label="3D Drone Interactive Canvas"
+        />
 
-              <span className="font-circular-web text-[10px] uppercase tracking-[0.4em] text-[#D98C4A]">
-                Creative Developer
-              </span>
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(217,140,74,0.08),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(180,120,55,0.06),transparent_50%)]" />
+        </div>
+
+        <div className="hero-frame-h pointer-events-none absolute left-[6vw] right-[6vw] top-20 z-20 h-px bg-linear-to-r from-[#D98C4A]/60 via-white/10 to-transparent" />
+
+        <div className="hero-frame-v pointer-events-none absolute left-[6vw] top-20 bottom-20 z-20 hidden w-px bg-linear-to-b from-[#D98C4A]/60 via-white/10 to-transparent md:block" />
+
+        {/* BEAT 1: THE DRONE REVEAL (Hero Intro)                     */}
+        <div className="hero-beat-1-group pointer-events-none absolute left-6 top-[22%] z-20 md:left-[10vw] md:top-[24%] max-w-160">
+          <div className="hero-eyebrow mb-4 flex items-center gap-3">
+            <span className="h-px w-6 bg-[#D98C4A]" />
+            <span className="font-general text-[10px] uppercase tracking-[0.3em] text-[#D98C4A]">
+              Creative Developer & Systems Architect
+            </span>
+          </div>
+
+          <h1
+            className="hero-main-title special-font text-[18vw] leading-[0.8] tracking-tight text-[#efe6d4] sm:text-[13vw] md:text-[9vw]"
+            style={{ perspective: "1200px" }}
+          >
+            <span className="block">TAREK</span>
+            <span className="block">FAWZY</span>
+          </h1>
+
+          <div className="hero-beat-1-content mt-8 max-w-110">
+            <p className="font-general text-sm leading-relaxed text-[#A6998A] md:text-base">
+              Sculpting digital experiences where brutalist aesthetics,
+              real-time motion, and robust backend architecture converge.
+            </p>
+          </div>
+        </div>
+
+        {/* Interactive Drag to Rotate Pill (Beat 1) */}
+        <div className="hero-drag-hint pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 rounded-full border border-[#D98C4A]/30 bg-[#0a0806]/80 px-5 py-2 backdrop-blur-md">
+          <Radio className="size-3.5 animate-pulse text-[#D98C4A]" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#E8DCC8]">
+            Click & Drag to Orbit Drone
+          </span>
+        </div>
+
+        {/* BEAT 2: TACTICAL SCAN & ARCHITECTURE PHILOSOPHY           */}
+        <div className="hero-beat-2-group pointer-events-none absolute inset-x-6 top-[26%] z-20 mx-auto max-w-4xl opacity-0 text-center md:inset-x-12">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-xs border border-[#D98C4A]/30 bg-[#16100c]/80 px-3 py-1">
+            <Cpu className="size-3 text-[#D98C4A]" />
+            <span className="font-mono text-[9px] uppercase tracking-[0.35em] text-[#D98C4A]">
+              TELEMETRY PHASE // SCAN & INSPECTION
+            </span>
+          </div>
+
+          <h2 className="font-robert-medium text-[clamp(2rem,4.5vw,4.5rem)] leading-[1.08] tracking-tight text-[#E9DFC8]">
+            Behind every interface lies an{" "}
+            <span className="text-[#D98C4A]">
+              experience worth remembering.
+            </span>
+          </h2>
+
+          <p className="mx-auto mt-6 max-w-2xl font-general text-sm leading-relaxed text-[#A6998A] md:text-base">
+            Engineering is where it starts — building scalable systems and
+            thoughtful interfaces, then pushing them a little further with
+            cinematic motion, unusual interactions, and ideas that make digital
+            products feel less ordinary.
+          </p>
+        </div>
+
+        {/* BEAT 3: HYPER-DRIVE & MANIFESTO                           */}
+        <div className="hero-beat-3-group pointer-events-none absolute left-6 top-[25%] z-20 max-w-2xl opacity-0 md:left-[10vw]">
+          <h2 className="font-robert-medium text-[clamp(2.4rem,5.2vw,5.5rem)] leading-none tracking-tight text-[#E9DFC8]">
+            From structured systems to <br />{" "}
+            <span className="text-[#D98C4A]">cinematic experiences.</span>
+          </h2>
+
+          <p className="mt-6 font-general text-sm leading-relaxed text-[#A6998A] md:text-base">
+            Building reliable systems and expressive interfaces, with a soft
+            spot for cinematic experiences, unusual interactions, and ideas that
+            make the web more interesting.
+          </p>
+        </div>
+
+        {/* BEAT 4: CINEMATIC RECRUITER OUTRO (PRODUCTION PROTOCOL)   */}
+        <div className="hero-beat-4-outro pointer-events-none absolute inset-x-6 top-[18%] z-30 mx-auto max-w-5xl opacity-0 text-center md:inset-x-12">
+          <h2 className="font-robert-medium text-[clamp(2.2rem,4.8vw,4.8rem)] leading-[1.05] tracking-tight text-[#EFE6D4]">
+            I don&apos;t just build interfaces.
+            <br />
+            <span className="text-[#D98C4A]">
+              I architect production ecosystems.
+            </span>
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-2xl font-general text-sm leading-relaxed text-[#B8AA98] md:text-base">
+            Engineered for high-concurrency production environments, bulletproof
+            type-safety, and sub-second latencies. Every pixel and backend
+            service is crafted to endure.
+          </p>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 text-left">
+            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
+                  01 // SCALE
+                </span>
+                <Server className="size-4 text-[#D98C4A]" />
+              </div>
+              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
+                Backend Engineering
+              </h3>
+              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
+                APIs, databases, authentication, and the kind of logic that
+                keeps things running when nobody is looking.
+              </p>
             </div>
 
-            <h1
-              className="hero-title special-font text-[19vw] leading-[0.8] text-[#efe6d4]
-                sm:text-[13vw] md:text-[9vw]"
-              style={{
-                perspective: "1200px",
-              }}
-            >
-              <span className="block">TAREK</span>
-              <span className="block">FAWZY</span>
-            </h1>
+            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
+                  02 // EXPERIENCE
+                </span>
+                <Zap className="size-4 text-[#D98C4A]" />
+              </div>
+              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
+                Digital Experiences
+              </h3>
+              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
+                Interfaces, interactions, motion, and the details that turn
+                solid products into experiences people actually enjoy using.
+              </p>
+            </div>
 
-            <div className="hero-description hidden sm:inline-flex mt-8 max-w-100">
-              <p className="font-general text-sm leading-6 text-neutral-400">
-                I engineer immersive digital experiences where systems, motion,
-                and atmosphere become one — built to perform, adapt, and endure.
+            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
+                  03 // THINKING
+                </span>
+                <ShieldCheck className="size-4 text-[#D98C4A]" />
+              </div>
+              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
+                Creative Thinking
+              </h3>
+              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
+                Turning vague ideas into clear directions, useful systems, and
+                occasionally something a little weird.
               </p>
             </div>
           </div>
         </div>
 
-        <div
-          className="hero-frame-line pointer-events-none absolute left-[9vw] right-[9vw] top-[18%]
-            z-10 h-px bg-linear-to-r from-[#D98C4A]/40
-            via-white/5 to-transparent"
-        />
-
-        <div className="hero-side-label pointer-events-none absolute right-6 top-1/2 z-20 -translate-y-1/2 hidden sm:inline-flex">
-          <div className="flex -rotate-90 items-center gap-4">
-            <span className="font-robert-regular text-[8px] uppercase tracking-[0.5em] text-white whitespace-nowrap">
-              Systems / Motion / Experience
+        {/* Right Sidebar Telemetry */}
+        <div className="hero-telemetry-sidebar pointer-events-none absolute right-[6vw] top-1/2 z-20 -translate-y-1/2 hidden flex-col items-end gap-3 sm:flex">
+          <div className="flex -rotate-90 origin-right items-center gap-4">
+            <span className="font-mono text-[8px] uppercase tracking-[0.5em] text-[#E8DCC8]/60 whitespace-nowrap">
+              SYSTEMS / MOTION / DRONE
             </span>
-
-            <span className="h-px w-12 bg-[#D98C4A]/50" />
+            <span className="h-px w-12 bg-[#D98C4A]" />
           </div>
         </div>
 
-        <div className="hero-bottom-description pointer-events-none absolute bottom-25 md:bottom-10 right-6 z-20 max-w-87 md:right-10 hidden sm:inline-block">
-          <div className="mb-3 flex items-center justify-end gap-3">
-            <span className="font-robert-medium text-[8px] uppercase tracking-[0.45em] text-white">
-              Engineering × Atmosphere
-            </span>
-
-            <span className="size-1 rounded-full bg-[#D98C4A]" />
-          </div>
-
-          <p className="text-right font-general text-xs leading-6 text-amber-300">
-            From the architecture beneath the surface to every interaction you
-            can feel.
-          </p>
-        </div>
-
-        <div className="hero-scroll absolute bottom-10 left-6 z-30 md:left-10">
+        {/* Bottom Scroll Indicator & Status */}
+        <div className="pointer-events-none absolute bottom-8 left-[6vw] right-[6vw] z-30 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex size-8 items-center justify-center rounded-full border border-[#D98C4A]/30">
-              <ArrowDown className="size-4 text-[#D98C4A]" />
+            <div className="flex size-9 items-center justify-center rounded-full border border-[#D98C4A]/40 bg-[#0b0806]/80">
+              <ArrowDown className="size-4 animate-bounce text-[#D98C4A]" />
             </div>
 
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.35em] text-white/50">
-                Scroll to descend
+              <div className="font-mono text-[9px] uppercase tracking-[0.35em] text-white/70">
+                Scroll to Descend
               </div>
-
-              <div className="mt-1 font-circular-web text-[8px] uppercase tracking-[0.25em] text-white/30">
-                Enter the system
+              <div className="font-mono text-[8px] uppercase tracking-[0.25em] text-[#D98C4A]/60">
+                Storyline Phase 0{activeBeat} // 04
               </div>
             </div>
           </div>

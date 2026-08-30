@@ -1,3 +1,5 @@
+import { Server, Sparkles, Workflow, Cpu, Shield } from "lucide-react";
+
 export interface ProjectProps {
   number: string;
   year: string;
@@ -5,7 +7,8 @@ export interface ProjectProps {
   category: string;
   description: string;
   image: string;
-  slug?: string
+  slug?: string;
+  bgImage?: string;
 }
 
 export interface ServiceProps {
@@ -88,6 +91,8 @@ export const projects: ProjectProps[] = [
       "A cinematic booking experience built around movement, atmosphere, and precision.",
     image:
       "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2400&auto=format&fit=crop",
+    bgImage:
+      "https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=2400&auto=format&fit=crop",
   },
   {
     number: "02",
@@ -98,6 +103,8 @@ export const projects: ProjectProps[] = [
       "A dark, tactile interface where complex systems disappear behind simple interactions.",
     image:
       "https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=2400&auto=format&fit=crop",
+    bgImage:
+      "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2400&auto=format&fit=crop",
   },
   {
     number: "03",
@@ -108,6 +115,8 @@ export const projects: ProjectProps[] = [
       "An immersive digital world inspired by vast landscapes, brutal simplicity, and motion.",
     image:
       "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2400&auto=format&fit=crop",
+    bgImage:
+      "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2400&auto=format&fit=crop",
   },
   {
     number: "04",
@@ -118,5 +127,86 @@ export const projects: ProjectProps[] = [
       "A high-performance platform designed to feel as alive as the systems running underneath.",
     image:
       "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2400&auto=format&fit=crop",
+    bgImage:
+      "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2400&auto=format&fit=crop",
   },
+];
+
+export const ARCHITECTURE_BRANCHES = [
+  {
+    code: "NODE_01",
+    branch: "BACKEND ENGINEERING",
+    role: "Backend Developer",
+    summary:
+      "Building reliable backend systems with clear business logic, well-structured APIs, and data models that stay maintainable as products grow.",
+    specs: [
+      "Node.js & TypeScript APIs",
+      "PostgreSQL & Drizzle ORM",
+      "Authentication & Authorization",
+      "Transactions & Business Logic",
+    ],
+    telemetry: {
+      runtime: "Node.js",
+      database: "PostgreSQL",
+      protocol: "REST / HTTP",
+      signal: "RELIABILITY",
+    },
+    icon: Server,
+    color: "#D98C4A",
+  },
+
+  {
+    code: "NODE_02",
+    branch: "DIGITAL EXPERIENCE",
+    role: "Frontend Developer",
+    summary:
+      "Creating interfaces that balance usability with personality, from thoughtful layouts to motion and interactions that make products feel alive.",
+    specs: [
+      "React & Next.js",
+      "Responsive Interface Development",
+      "GSAP & Motion",
+      "Interactive Web Experiences",
+    ],
+    telemetry: {
+      framework: "Next.js / React",
+      styling: "Tailwind CSS",
+      motion: "GSAP / Motion",
+      signal: "EXPRESSION",
+    },
+    icon: Sparkles,
+    color: "#5FB8C9",
+  },
+
+  {
+    code: "NODE_03",
+    branch: "PRODUCT & CREATIVE THINKING",
+    role: "Creative Developer",
+    summary:
+      "Connecting engineering with product thinking to turn rough ideas into useful, polished experiences — with room for experimentation along the way.",
+    specs: [
+      "Product-Oriented Development",
+      "UI / UX Thinking",
+      "Creative Interaction Design",
+      "AI-Powered Product Exploration",
+    ],
+    telemetry: {
+      approach: "Product First",
+      mindset: "Curious / Practical",
+      focus: "Useful Experiences",
+      signal: "EXPERIMENTATION",
+    },
+    icon: Workflow,
+    color: "#E8DCC8",
+  },
+] as const;
+
+export const TECH_TELEMETRY = [
+  { name: "TypeScript", cat: "CORE", level: "STRONG" },
+  { name: "Next.js / React", cat: "FRONTEND", level: "STRONG" },
+  { name: "Node.js", cat: "BACKEND", level: "STRONG" },
+  { name: "PostgreSQL / Drizzle", cat: "DATABASE", level: "STRONG" },
+  { name: "GSAP / Motion", cat: "MOTION", level: "STRONG" },
+  { name: "Tailwind CSS", cat: "UI", level: "STRONG" },
+  { name: "REST APIs", cat: "BACKEND", level: "STRONG" },
+  { name: "AI / LLMs", cat: "EXPLORING", level: "BUILDING" },
 ];

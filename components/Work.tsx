@@ -167,41 +167,46 @@ const Work = () => {
         {projects.map((project) => (
           <div
             key={project.number}
-            className="group relative h-screen w-screen shrink-0"
+            className="group relative h-screen w-screen shrink-0 overflow-hidden"
           >
-            <div className="absolute inset-[4vw] md:inset-[5vw] overflow-hidden">
-              <div className="absolute inset-0 z-10 bg-linear-to-t from-[#0B0907]/80 via-transparent to-[#0B0907]/10" />
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <img
+                src={project.bgImage}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover scale-115 filter blur-[60px] md:blur-3xl saturate-100 transition-transform duration-1000 ease-out group-hover:scale-125"
+              />
+              <div className="absolute inset-0 bg-[#070503]/10" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#070503_90%)]" />
+            </div>
+
+            <div className="absolute inset-[4vw] md:inset-[5vw] overflow-hidden rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xs">
+              <div className="absolute inset-0 z-10 bg-linear-to-t from-[#070503]/90 via-transparent to-[#070503]/20" />
 
               <img
                 src={project.image}
                 alt={project.title}
-                className="h-full w-full object-cover grayscale-20 brightness-[0.72] transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04] rounded-lg aspect-video"
+                className="h-full w-full object-cover grayscale-15 brightness-[0.78] transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04] rounded-lg aspect-video"
               />
 
-              <div className="absolute inset-0 bg-[radial-linear(circle_at_70%_40%,rgba(211,143,72,0.15),transparent_35%)]" />
-            </div>
-
-            <div className="absolute left-[7vw] top-1/2 z-20 -translate-y-1/2 md:left-[8vw]">
-              <span className="font-mono text-[10px] tracking-[0.4em] text-[#C88A4A]">
-                // {project.number}
-              </span>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(217,140,74,0.18),transparent_45%)]" />
             </div>
 
             <div className="absolute bottom-[10vw] left-[12vw] z-20 max-w-170 md:left-[15vw]">
-              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-[#E8DCC8]/50">
+              <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-[#D98C4A]">
                 {project.category}
               </p>
 
-              <h3 className="font-serif text-[16vw] font-light leading-[0.75] tracking-[-0.06em] md:text-[10vw]">
+              <h3 className="font-serif text-[16vw] font-light leading-[0.75] tracking-[-0.06em] text-[#EFE6D4] md:text-[10vw]">
                 {project.title}
               </h3>
 
               <div className="mt-8 flex items-end justify-between gap-12">
-                <p className="max-w-sm text-sm leading-relaxed text-[#E8DCC8]/60 md:text-base">
+                <p className="max-w-sm text-sm leading-relaxed text-[#E8DCC8]/70 md:text-base">
                   {project.description}
                 </p>
 
-                <span className="hidden font-mono text-[10px] tracking-[0.3em] text-[#E8DCC8]/40 md:block">
+                <span className="hidden font-general text-xs tracking-[0.3em] text-[#D98C4A]/70 md:block">
                   {project.year}
                 </span>
               </div>
@@ -209,7 +214,7 @@ const Work = () => {
 
             <MagneticLink href={`/work/${project.slug}`} />
 
-            <div className="absolute bottom-0 left-0 right-0 z-30 h-px bg-[#E8DCC8]/10" />
+            <div className="absolute bottom-0 left-0 right-0 z-30 h-px bg-linear-to-r from-transparent via-[#D98C4A]/30 to-transparent" />
           </div>
         ))}
       </div>

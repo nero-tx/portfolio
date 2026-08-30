@@ -36,81 +36,63 @@ export function useSceneMotion() {
 
       artifactMotion.current.coreReveal = 0;
 
-      // Act 2: About (Inspection Profile)
+      // Act 1: Extended Hero Multi-Beat Narrative Choreography (4-Phase Storyline)
       ScrollTrigger.create({
-        trigger: "#about",
-        start: "top bottom",
-        end: "top top",
+        trigger: "#hero",
+        start: "top top",
+        end: "bottom bottom",
         scrub: 1.2,
         animation: gsap
           .timeline()
+          // Beat 1 -> Beat 2: Inspection Orbit & Zoom In
           .to(
             artifactMotion.current,
             {
-              x: 1.15,
-              rotY: Math.PI * 0.95,
-              scale: 0.88,
-              coreReveal: 0.25,
-              ease: "none",
+              x: -0.35,
+              rotY: Math.PI * 0.65,
+              scale: 1.05,
+              ease: "power1.inOut",
             },
             0,
           )
           .to(
             cameraMotion.current,
-            { x: 0.45, y: 0.2, z: 4.2, fov: 28, ease: "none" },
+            { x: -0.15, y: 0.1, z: 4.8, fov: 29, ease: "power1.inOut" },
             0,
-          ),
-      });
-
-      // Act 3: Work (Core Ignition & Fracture)
-      ScrollTrigger.create({
-        trigger: "#work",
-        start: "top bottom",
-        end: "top top",
-        scrub: 1.2,
-        animation: gsap
-          .timeline()
+          )
+          // Beat 2 -> Beat 3: Hyper-Drive Awakening
           .to(
             artifactMotion.current,
             {
-              x: -0.45,
-              rotY: Math.PI * 1.85,
-              scale: 1,
-              coreReveal: 1.0,
-              ease: "none",
+              x: 0.55,
+              rotY: Math.PI * 1.35,
+              scale: 1.15,
+              ease: "power2.inOut",
             },
-            0,
+            0.35,
           )
           .to(
             cameraMotion.current,
-            { x: -0.2, y: 0.05, z: 3.5, fov: 30, ease: "none" },
-            0,
-          ),
-      });
-
-      // Act 4: Contact (Equilibrium & Transmission)
-      ScrollTrigger.create({
-        trigger: "#contact",
-        start: "top bottom",
-        end: "top top",
-        scrub: 1.2,
-        animation: gsap
-          .timeline()
+            { x: 0.15, y: -0.05, z: 4.2, fov: 31, ease: "power2.inOut" },
+            0.35,
+          )
+          // Beat 3 -> Beat 4 (Outro): Flight Mode & Hyperspace Ascent
           .to(
             artifactMotion.current,
             {
               x: 0,
-              rotY: Math.PI * 2.6,
-              scale: 0.95,
-              coreReveal: 0.35,
-              ease: "none",
+              y: 0.65,
+              z: -1.6,
+              rotY: Math.PI * 2.2,
+              scale: 0.75,
+              ease: "power2.inOut",
             },
-            0,
+            0.7,
           )
           .to(
             cameraMotion.current,
-            { x: 0, y: 0.15, z: 4.6, fov: 30, ease: "none" },
-            0,
+            { x: 0, y: 0.25, z: 5.4, fov: 28, ease: "power2.inOut" },
+            0.7,
           ),
       });
 

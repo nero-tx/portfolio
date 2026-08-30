@@ -5,6 +5,7 @@ import TransitionProvider from "@/components/TransitionProvider";
 import Header from "@/components/Header";
 import CustomCursor from "@/components/CustomCursor";
 import { AudioProvider } from "@/context/AudioProvider";
+import IntroLoader from "@/components/IntroLoader";
 
 export const metadata: Metadata = {
   title: "nero-tx",
@@ -30,13 +31,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
       <body className="w-full overflow-x-hidden flex flex-col relative">
+        <IntroLoader />
         <AudioProvider>
           <CustomCursor />
-
           <TransitionProvider>
             <SmoothScroll>
               <Header />
-
               {children}
             </SmoothScroll>
           </TransitionProvider>

@@ -150,12 +150,6 @@ export default function Hero() {
           },
           0.54,
         )
-        .fromTo(
-          ".hero-metrics-cluster",
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.3, stagger: 0.06 },
-          0.58,
-        )
 
         // BEAT 3 -> BEAT 4 TRANSITION (The Recruiter Outro: Production Protocol)
         .to(

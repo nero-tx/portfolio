@@ -36,6 +36,9 @@ export default function Hero() {
       gsap.set(".hero-beat-1-content", { autoAlpha: 0, y: 20 });
       gsap.set(".hero-telemetry-sidebar", { autoAlpha: 0, x: 20 });
       gsap.set(".hero-drag-hint", { autoAlpha: 0, scale: 0.9 });
+      gsap.set(".hero-beat-2-group", { autoAlpha: 0 });
+      gsap.set(".hero-beat-3-group", { autoAlpha: 0 });
+      gsap.set(".hero-beat-4-outro", { autoAlpha: 0 });
 
       const introTl = gsap.timeline({
         defaults: { ease: "power4.out" },
@@ -71,7 +74,21 @@ export default function Hero() {
         )
         .to(".hero-drag-hint", { autoAlpha: 1, scale: 1, duration: 0.8 }, 1.1);
 
-      // 2. Multi-Beat Scroll Scrubbed Storyline (4 Beats)
+      // ── 2. Scroll-scrubbed beat timeline ──────────────────────────────────
+      // Section height: 700vh. Sticky offset: 100vh → ~600vh scroll travel.
+      // Each beat gets a generous window; transitions are tight cross-fades.
+      //
+      //  Beat 1 rest:      0.00 – 0.18
+      //  Beat 1 → 2 exit:  0.18 – 0.27  (B1 out + sidebar out)
+      //  Beat 2 enter:     0.24 – 0.34
+      //  Beat 2 rest:      0.34 – 0.44
+      //  Beat 2 → 3 exit:  0.44 – 0.53
+      //  Beat 3 enter:     0.50 – 0.60
+      //  Beat 3 rest:      0.60 – 0.70
+      //  Beat 3 → 4 exit:  0.70 – 0.78
+      //  Beat 4 enter:     0.75 – 0.87
+      //  Beat 4 rest:      0.87 – 1.00
+
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
@@ -80,114 +97,118 @@ export default function Hero() {
           scrub: 1.2,
           onUpdate: (self) => {
             const p = self.progress;
-            if (p < 0.24) setActiveBeat(1);
-            else if (p < 0.52) setActiveBeat(2);
-            else if (p < 0.76) setActiveBeat(3);
-            else setActiveBeat(4);
+            if (p < 0.27)       setActiveBeat(1);
+            else if (p < 0.53)  setActiveBeat(2);
+            else if (p < 0.78)  setActiveBeat(3);
+            else                setActiveBeat(4);
           },
         },
       });
 
-      // BEAT 1 -> BEAT 2 TRANSITION
+      // ── Beat 1 exit ──
       scrollTl
         .to(
           ".hero-beat-1-group",
           {
-            yPercent: -60,
-            opacity: 0,
-            scale: 0.92,
-            filter: "blur(8px)",
-            duration: 0.28,
+            yPercent: -50,
+            autoAlpha: 0,
+            scale: 0.94,
+            filter: "blur(6px)",
+            duration: 0.09,
             ease: "power2.inOut",
           },
-          0,
+          0.18,
         )
         .to(
-          ".hero-drag-hint",
-          {
-            opacity: 0,
-            y: -15,
-            duration: 0.18,
-          },
-          0,
+          [".hero-drag-hint", ".hero-scroll-indicator"],
+          { autoAlpha: 0, y: -10, duration: 0.07 },
+          0.18,
         )
-        // Reveal Beat 2: Tactical Scan & Architecture Philosophy
-        .fromTo(
-          ".hero-beat-2-group",
-          { opacity: 0, yPercent: 60, filter: "blur(8px)" },
-          {
-            opacity: 1,
-            yPercent: 0,
-            filter: "blur(0px)",
-            duration: 0.32,
-            ease: "power2.out",
-          },
-          0.22,
+        .to(
+          ".hero-telemetry-sidebar",
+          { autoAlpha: 0, x: 12, duration: 0.08 },
+          0.19,
         )
 
-        // BEAT 2 -> BEAT 3 TRANSITION (Hyper-Drive)
+        // ── Beat 2 enter ──
+        .fromTo(
+          ".hero-beat-2-group",
+          { autoAlpha: 0, yPercent: 50, filter: "blur(8px)" },
+          {
+            autoAlpha: 1,
+            yPercent: 0,
+            filter: "blur(0px)",
+            duration: 0.12,
+            ease: "power3.out",
+          },
+          0.24,
+        )
+
+        // ── Beat 2 exit ──
         .to(
           ".hero-beat-2-group",
           {
-            yPercent: -60,
-            opacity: 0,
-            filter: "blur(8px)",
-            duration: 0.28,
+            yPercent: -50,
+            autoAlpha: 0,
+            filter: "blur(6px)",
+            duration: 0.09,
             ease: "power2.inOut",
           },
-          0.5,
-        )
-        // Reveal Beat 3: Capabilities Manifesto
-        .fromTo(
-          ".hero-beat-3-group",
-          { opacity: 0, yPercent: 60, filter: "blur(8px)" },
-          {
-            opacity: 1,
-            yPercent: 0,
-            filter: "blur(0px)",
-            duration: 0.32,
-            ease: "power2.out",
-          },
-          0.54,
+          0.44,
         )
 
-        // BEAT 3 -> BEAT 4 TRANSITION (The Recruiter Outro: Production Protocol)
+        // ── Beat 3 enter ──
+        .fromTo(
+          ".hero-beat-3-group",
+          { autoAlpha: 0, yPercent: 50, filter: "blur(8px)" },
+          {
+            autoAlpha: 1,
+            yPercent: 0,
+            filter: "blur(0px)",
+            duration: 0.12,
+            ease: "power3.out",
+          },
+          0.50,
+        )
+
+        // ── Beat 3 exit ──
         .to(
           ".hero-beat-3-group",
           {
-            yPercent: -60,
-            opacity: 0,
-            filter: "blur(8px)",
-            duration: 0.28,
+            yPercent: -50,
+            autoAlpha: 0,
+            filter: "blur(6px)",
+            duration: 0.09,
             ease: "power2.inOut",
           },
-          0.74,
+          0.70,
         )
-        // Reveal Beat 4 Outro Matrix
+
+        // ── Beat 4 enter ──
         .fromTo(
           ".hero-beat-4-outro",
-          { opacity: 0, yPercent: 50, scale: 0.94, filter: "blur(10px)" },
+          { autoAlpha: 0, yPercent: 40, scale: 0.95, filter: "blur(10px)" },
           {
-            opacity: 1,
+            autoAlpha: 1,
             yPercent: 0,
             scale: 1,
             filter: "blur(0px)",
-            duration: 0.36,
+            duration: 0.14,
             ease: "power3.out",
           },
-          0.78,
+          0.75,
         )
         .fromTo(
           ".outro-card",
-          { opacity: 0, y: 30 },
+          { autoAlpha: 0, y: 28 },
           {
-            opacity: 1,
+            autoAlpha: 1,
             y: 0,
-            duration: 0.3,
-            stagger: 0.08,
+            duration: 0.10,
+            stagger: 0.04,
             ease: "power2.out",
           },
-          0.82,
+          0.81,
         );
 
       return () => {
@@ -202,7 +223,7 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative h-[380vh] w-full bg-transparent"
+      className="relative h-[700vh] w-full bg-transparent"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden select-none">
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -312,7 +333,7 @@ export default function Hero() {
             service is crafted to endure.
           </p>
 
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 text-left">
+          <div className="mt-8 grid grid-cols-1 gap-1 md:gap-4 sm:grid-cols-3 text-left">
             <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
               <div className="mb-3 flex items-center justify-between">
                 <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
@@ -374,7 +395,7 @@ export default function Hero() {
         </div>
 
         {/* Bottom Scroll Indicator & Status */}
-        <div className="pointer-events-none absolute bottom-8 left-[6vw] right-[6vw] z-30 flex items-center justify-between">
+        <div className="hero-scroll-indicator pointer-events-none absolute bottom-8 left-[6vw] right-[6vw] z-30 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex size-9 items-center justify-center rounded-full border border-[#D98C4A]/40 bg-[#0b0806]/80">
               <ArrowDown className="size-4 animate-bounce text-[#D98C4A]" />

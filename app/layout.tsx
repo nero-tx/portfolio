@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import CustomCursor from "@/components/CustomCursor";
 import { AudioProvider } from "@/context/AudioProvider";
 import IntroLoader from "@/components/IntroLoader";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "nero-tx",
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SmoothScroll>
               <Header />
               {children}
+              <Footer />
             </SmoothScroll>
           </TransitionProvider>
         </AudioProvider>

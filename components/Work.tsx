@@ -219,18 +219,26 @@ const Work = () => {
         ))}
       </div>
 
-      <div className="pointer-events-none absolute bottom-8 left-8 z-30 md:flex items-center gap-4 md:left-16 hidden">
-        <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#E8DCC8]/40">
-          Scroll to explore
-        </span>
-
-        <div className="h-px w-16 overflow-hidden bg-[#E8DCC8]/20">
-          <div className="h-full w-full origin-left animate-pulse bg-[#C88A4A]" />
+      {/*mini-footer */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-[#D98C4A]/12 bg-[#070503]/60 px-8 py-3 backdrop-blur-sm md:px-16">
+        <div className="flex items-center gap-5">
+          <span className="font-mono text-[8px] uppercase tracking-[0.45em] text-[#D98C4A]/60">
+            SELECTED WORK
+          </span>
+          <div className="hidden h-3 w-px bg-[#E8DCC8]/15 md:block" />
+          <span className="hidden font-mono text-[8px] uppercase tracking-[0.35em] text-[#E8DCC8]/30 md:inline">
+            {projects.length} projects
+          </span>
         </div>
-      </div>
 
-      <div className="pointer-events-none absolute bottom-8 right-8 z-30 font-mono text-[9px] tracking-[0.3em] text-[#E8DCC8] md:right-16 hidden md:inline-block">
-        MY WORK
+        <div className="hidden items-center gap-3 md:flex">
+          <span className="font-mono text-[8px] uppercase tracking-[0.35em] text-[#E8DCC8]/30">
+            Scroll to explore
+          </span>
+          <div className="h-px w-10 overflow-hidden bg-[#E8DCC8]/15">
+            <div className="h-full w-full origin-left animate-pulse bg-[#C88A4A]/60" />
+          </div>
+        </div>
       </div>
 
       {/* End Scene Outro */}

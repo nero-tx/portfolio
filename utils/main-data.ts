@@ -210,3 +210,63 @@ export const TECH_TELEMETRY = [
   { name: "REST APIs", cat: "BACKEND", level: "STRONG" },
   { name: "AI / LLMs", cat: "EXPLORING", level: "BUILDING" },
 ];
+
+interface TerminalLine {
+  type: "input" | "output" | "comment";
+  text: string;
+}
+
+export interface ProjectCodePreview {
+  kind: "terminal" | "code";
+  terminal?: { prompt: string; lines: TerminalLine[] };
+  code?: { language: string; snippet: string };
+}
+
+interface ProjectLink {
+  label: string;
+  url: string;
+}
+
+export type ProjectMedia =
+  | {
+      type: "image";
+      src: string;
+      alt: string;
+      caption?: string;
+    }
+  | {
+      type: "video";
+      src: string;
+      poster: string;
+      alt: string;
+      caption?: string;
+    };
+
+export interface Project {
+  number: string;
+  slug: string;
+  title: string;
+  category: string;
+  year: string;
+  description: string;
+  hasVisual: boolean;
+  heroImage: string;
+  stack: string[];
+  role?: string;
+  links?: ProjectLink[];
+  problem: {
+    kicker?: string;
+    statement: string;
+    context?: string;
+  };
+  fix: {
+    kicker?: string;
+    approach: string[];
+  };
+  media?: ProjectMedia[];
+  codePreview?: ProjectCodePreview;
+  results?: string[];
+  nextSlug?: string;
+  prevSlug?: string;
+}
+

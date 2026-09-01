@@ -95,7 +95,7 @@ export default function CodePreview({ preview, className = "" }: Props) {
       const revealLines = (els: HTMLElement[], startLabel?: string) => {
         els.forEach((el, i) => {
           const charCount = Math.max(el.textContent?.length ?? 10, 1);
-          const duration = Math.min(Math.max(charCount * 0.024, 0.2), 1.1);
+          const duration = Math.min(Math.max(charCount * 0.024, 0.02), 0.5);
           tl.to(
             el,
             {

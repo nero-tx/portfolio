@@ -183,7 +183,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
         </header>
 
         <div
-          className="hero-visual relative mb-28 w-full max-w-6xl overflow-hidden rounded-lg"
+          className="hero-visual relative mb-28 w-full h-full max-w-6xl overflow-hidden rounded-lg"
           style={{ clipPath: "inset(0% 0% 100% 0%)" }}
         >
           {project.hasVisual && project.media ? (

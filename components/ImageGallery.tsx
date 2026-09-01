@@ -148,7 +148,7 @@ export default function ImageScrollGallery({ media, className = "" }: Props) {
 export function NoVisualsFallback({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-[#E8DCC8]/10 bg-[#0A0908] ${className}`}
+      className={`relative flex h-[70dvh] w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-[#E8DCC8]/10 bg-[#0A0908] ${className}`}
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         {Array.from({ length: 24 }).map((_, i) => (

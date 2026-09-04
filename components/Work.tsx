@@ -186,10 +186,10 @@ const Work = () => {
               <img
                 src={project.image}
                 alt={project.title}
-                className="h-full w-full object-cover grayscale-15 brightness-[0.78] transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04] rounded-lg aspect-video"
+                className="h-full w-full object-cover grayscale-15 brightness-[0.75] transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04] rounded-lg aspect-video"
               />
 
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(217,140,74,0.18),transparent_45%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(217,140,74,0.20),transparent_45%)]" />
             </div>
 
             <div className="absolute bottom-[10vw] left-[12vw] z-20 max-w-170 md:left-[15vw]">

@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import TransitionProvider from "@/components/TransitionProvider";
+import TransitionProvider from "@/context/TransitionProvider";
 import Header from "@/components/Header";
 import CustomCursor from "@/components/CustomCursor";
 import { AudioProvider } from "@/context/AudioProvider";
 import IntroLoader from "@/components/IntroLoader";
 import Footer from "@/components/Footer";
+import ScrollReset from "@/components/ScrollReset";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nero-tx.com"),
   title: "nero-tx",
   description: "Just give me the tonue and I will make it happen.",
   authors: [{ name: "Tarek Fawzy" }],
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
       <body className="w-full overflow-x-hidden flex flex-col relative">
+        <ScrollReset />
         <IntroLoader />
         <AudioProvider>
           <CustomCursor />

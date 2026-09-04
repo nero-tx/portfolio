@@ -44,16 +44,6 @@ function checkShouldRunIntro(): boolean {
   }
 }
 
-function lockScroll() {
-  document.documentElement.style.overflow = "hidden";
-  document.body.style.overflow = "hidden";
-}
-
-function unlockScroll() {
-  document.documentElement.style.overflow = "";
-  document.body.style.overflow = "";
-}
-
 export default function IntroLoader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentWrapperRef = useRef<HTMLDivElement>(null);
@@ -71,7 +61,7 @@ export default function IntroLoader() {
       return;
     }
 
-    lockScroll();
+    document.body.style.overflow = "hidden";
 
     introHasPlayedMemory = true;
     window.__INTRO_PLAYED__ = true;
@@ -170,11 +160,15 @@ export default function IntroLoader() {
 
     tl.call(
       () => {
-        unlockScroll();
+        document.body.style.overflow = "";
       },
       [],
       "outro",
     );
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   return (

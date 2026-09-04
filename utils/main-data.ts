@@ -372,7 +372,7 @@ export const mainProjects: Project[] = [
 
     hasVisual: true,
     heroImage: "/images/projects/store-app/hero.webp",
-    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion" ,"MongoDB" ,"Mongoose"],
     role: "Full-Stack Developer",
     links: [
       {

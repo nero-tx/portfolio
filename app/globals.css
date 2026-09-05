@@ -160,3 +160,45 @@ body {
   background: #c9a45c;
   color: #0b0b0b;
 }
+
+.wind-streak {
+  position: absolute;
+  left: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(232, 220, 200, 0.85),
+    rgba(217, 140, 74, 0.4),
+    transparent
+  );
+  filter: blur(0.5px);
+  will-change: transform, opacity;
+  animation-name: windSweep;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes windSweep {
+  0% {
+    transform: translate3d(-30vw, 0, 0) scaleX(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: calc(var(--opacity-max, 0.2) * var(--wind-intensity, 1));
+  }
+  88% {
+    opacity: calc(var(--opacity-max, 0.2) * var(--wind-intensity, 1));
+  }
+  100% {
+    transform: translate3d(130vw, 0, 0) scaleX(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wind-streak {
+    animation: none;
+    opacity: 0;
+  }
+}

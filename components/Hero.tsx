@@ -5,31 +5,78 @@ import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
-import { ArrowDown, Radio, Cpu, ShieldCheck, Zap, Server } from "lucide-react";
-
+import { ArrowDown, Radio, Cpu } from "lucide-react";
 const Scene = dynamic(() => import("@/components/3d/Scene"), {
   ssr: false,
 });
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+type Streak = {
+  id: number;
+  top: number;
+  width: number;
+  duration: number;
+  delay: number;
+  opacity: number;
+};
+
+function generateStreaks(count: number): Streak[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    top: Math.random() * 92 + 4, // 4%–96% of the viewport height
+    width: Math.random() * 140 + 70, // 70–210px streak length
+    duration: Math.random() * 4 + 3, // 3–7s crossing time
+    delay: -(Math.random() * 8), // negative delay = already mid-flight on mount
+    opacity: Math.random() * 0.22 + 0.1, // 0.10–0.32 peak opacity
+  }));
+}
+
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const gustRef = useRef<HTMLDivElement>(null);
   const [activeBeat, setActiveBeat] = useState<number>(1);
+  const [streaks, setStreaks] = useState<Streak[]>([]);
 
   useEffect(() => {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (!reduce) setStreaks(generateStreaks(16));
+  }, []);
+
+  useEffect(() => {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const ctx = gsap.context(() => {
+      gsap.set(heroRef.current, { "--wind-intensity": 1 } as gsap.TweenVars);
+      if (!reduce) {
+        gsap.to(heroRef.current, {
+          "--wind-intensity": 0.35,
+          duration: 15,
+          ease: "power2.out",
+        } as gsap.TweenVars);
+      }
+
       // 1. Initial Intro Animation for Title & Badges
       const split = new SplitText(".hero-main-title", {
         type: "chars",
       });
 
-      gsap.set(split.chars, {
-        yPercent: 120,
-        opacity: 0,
-        rotateX: -35,
-        transformOrigin: "50% 100%",
-      });
+      if (reduce) {
+        gsap.set(split.chars, { opacity: 0 });
+      } else {
+        gsap.set(split.chars, {
+          xPercent: () => gsap.utils.random(-140, -90),
+          yPercent: () => gsap.utils.random(-10, 10),
+          rotateZ: () => gsap.utils.random(-9, 9),
+          skewX: -16,
+          opacity: 0,
+          filter: "blur(10px)",
+        });
+      }
 
       gsap.set(".hero-frame-h", { scaleX: 0, transformOrigin: "left" });
       gsap.set(".hero-frame-v", { scaleY: 0, transformOrigin: "top" });
@@ -39,6 +86,7 @@ export default function Hero() {
       gsap.set(".hero-beat-2-group", { autoAlpha: 0 });
       gsap.set(".hero-beat-3-group", { autoAlpha: 0 });
       gsap.set(".hero-beat-4-outro", { autoAlpha: 0 });
+      gsap.set(gustRef.current, { xPercent: -160, opacity: 0 });
 
       const introTl = gsap.timeline({
         defaults: { ease: "power4.out" },
@@ -56,23 +104,40 @@ export default function Hero() {
           0.4,
         )
         .to(
-          split.chars,
-          {
-            yPercent: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 1.2,
-            stagger: 0.035,
-          },
+          gustRef.current,
+          { opacity: 1, duration: 0.35, ease: "power1.out" },
           0.45,
         )
-        .to(".hero-beat-1-content", { autoAlpha: 1, y: 0, duration: 0.9 }, 0.8)
+        .to(
+          gustRef.current,
+          { xPercent: 220, duration: 1.5, ease: "power1.inOut" },
+          0.45,
+        )
+        .to(gustRef.current, { opacity: 0, duration: 0.5 }, 1.35)
+        .to(
+          split.chars,
+          reduce
+            ? { opacity: 1, duration: 0.6, ease: "power1.out", stagger: 0.02 }
+            : {
+                xPercent: 0,
+                yPercent: 0,
+                rotateZ: 0,
+                skewX: 0,
+                opacity: 1,
+                filter: "blur(0px)",
+                duration: 1.3,
+                ease: "power4.out",
+                stagger: { each: 0.028, from: "start" },
+              },
+          0.5,
+        )
+        .to(".hero-beat-1-content", { autoAlpha: 1, y: 0, duration: 0.9 }, 0.9)
         .to(
           ".hero-telemetry-sidebar",
           { autoAlpha: 1, x: 0, duration: 0.8 },
-          0.9,
+          1.0,
         )
-        .to(".hero-drag-hint", { autoAlpha: 1, scale: 1, duration: 0.8 }, 1.1);
+        .to(".hero-drag-hint", { autoAlpha: 1, scale: 1, duration: 0.8 }, 1.2);
 
       // ── 2. Scroll-scrubbed beat timeline ──────────────────────────────────
       // Section height: 700vh. Sticky offset: 100vh → ~600vh scroll travel.
@@ -97,10 +162,10 @@ export default function Hero() {
           scrub: 1.2,
           onUpdate: (self) => {
             const p = self.progress;
-            if (p < 0.27)       setActiveBeat(1);
-            else if (p < 0.53)  setActiveBeat(2);
-            else if (p < 0.78)  setActiveBeat(3);
-            else                setActiveBeat(4);
+            if (p < 0.27) setActiveBeat(1);
+            else if (p < 0.53) setActiveBeat(2);
+            else if (p < 0.78) setActiveBeat(3);
+            else setActiveBeat(4);
           },
         },
       });
@@ -168,7 +233,7 @@ export default function Hero() {
             duration: 0.12,
             ease: "power3.out",
           },
-          0.50,
+          0.5,
         )
 
         // ── Beat 3 exit ──
@@ -181,7 +246,7 @@ export default function Hero() {
             duration: 0.09,
             ease: "power2.inOut",
           },
-          0.70,
+          0.7,
         )
 
         // ── Beat 4 enter ──
@@ -197,18 +262,6 @@ export default function Hero() {
             ease: "power3.out",
           },
           0.75,
-        )
-        .fromTo(
-          ".outro-card",
-          { autoAlpha: 0, y: 28 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.10,
-            stagger: 0.04,
-            ease: "power2.out",
-          },
-          0.81,
         );
 
       return () => {
@@ -224,6 +277,7 @@ export default function Hero() {
       ref={heroRef}
       id="hero"
       className="relative h-[700vh] w-full bg-transparent"
+      style={{ ["--wind-intensity" as string]: 1 }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden select-none">
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -241,6 +295,35 @@ export default function Hero() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(217,140,74,0.08),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(180,120,55,0.06),transparent_50%)]" />
         </div>
+
+        <div className="pointer-events-none absolute inset-0 z-6 overflow-hidden">
+          {streaks.map((s) => (
+            <span
+              key={s.id}
+              className="wind-streak"
+              style={
+                {
+                  top: `${s.top}%`,
+                  width: `${s.width}px`,
+                  animationDuration: `${s.duration}s`,
+                  animationDelay: `${s.delay}s`,
+                  "--opacity-max": s.opacity,
+                } as React.CSSProperties
+              }
+            />
+          ))}
+        </div>
+
+        {/* One-time gust flash that sweeps through as the title assembles */}
+        <div
+          ref={gustRef}
+          className="pointer-events-none absolute inset-y-0 left-0 z-7 w-[45vw] opacity-0"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(232,220,200,0.12), rgba(217,140,74,0.08), transparent)",
+            filter: "blur(28px)",
+          }}
+        />
 
         <div className="hero-frame-h pointer-events-none absolute left-[6vw] right-[6vw] top-20 z-20 h-px bg-linear-to-r from-[#D98C4A]/60 via-white/10 to-transparent" />
 
@@ -318,7 +401,7 @@ export default function Hero() {
         </div>
 
         {/* BEAT 4: CINEMATIC RECRUITER OUTRO (PRODUCTION PROTOCOL)   */}
-        <div className="hero-beat-4-outro pointer-events-none absolute inset-x-6 top-[18%] z-30 mx-auto max-w-5xl opacity-0 text-center md:inset-x-12">
+        <div className="hero-beat-4-outro pointer-events-none absolute inset-x-6 top-1/2 -translate-y-1/2 z-30 mx-auto max-w-5xl opacity-0 text-center md:inset-x-12">
           <h2 className="font-robert-medium text-[clamp(2.2rem,4.8vw,4.8rem)] leading-[1.05] tracking-tight text-[#EFE6D4]">
             I don&apos;t just build interfaces.
             <br />
@@ -328,60 +411,10 @@ export default function Hero() {
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl font-general text-sm leading-relaxed text-[#B8AA98] md:text-base">
-            Engineered for high-concurrency production environments, bulletproof
-            type-safety, and sub-second latencies. Every pixel and backend
-            service is crafted to endure.
+            Building modern software with a focus on performance, reliability,
+            and clean engineering — constantly pushing toward the level of
+            systems built to scale.
           </p>
-
-          <div className="mt-8 grid grid-cols-1 gap-1 md:gap-4 sm:grid-cols-3 text-left">
-            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
-                  01 // SCALE
-                </span>
-                <Server className="size-4 text-[#D98C4A]" />
-              </div>
-              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
-                Backend Engineering
-              </h3>
-              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
-                APIs, databases, authentication, and the kind of logic that
-                keeps things running when nobody is looking.
-              </p>
-            </div>
-
-            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
-                  02 // EXPERIENCE
-                </span>
-                <Zap className="size-4 text-[#D98C4A]" />
-              </div>
-              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
-                Digital Experiences
-              </h3>
-              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
-                Interfaces, interactions, motion, and the details that turn
-                solid products into experiences people actually enjoy using.
-              </p>
-            </div>
-
-            <div className="outro-card group relative rounded-xs border border-white/10 bg-[#0d0a07]/90 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#D98C4A]/50">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-mono text-[9px] tracking-[0.25em] text-[#D98C4A]">
-                  03 // THINKING
-                </span>
-                <ShieldCheck className="size-4 text-[#D98C4A]" />
-              </div>
-              <h3 className="font-robert-medium text-sm font-semibold text-[#E9DFC8]">
-                Creative Thinking
-              </h3>
-              <p className="mt-2 font-general text-xs leading-relaxed text-[#96897A]">
-                Turning vague ideas into clear directions, useful systems, and
-                occasionally something a little weird.
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Right Sidebar Telemetry */}

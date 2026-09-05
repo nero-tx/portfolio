@@ -27,7 +27,7 @@ function CameraRig({
     const startZ = target.z + 2.85;
     const startY = target.y + 1.25;
 
-    const px = (pointer.x || 0) * 0.18;
+    const px = (pointer.x || 0) * 0.16;
     const py = (pointer.y || 0) * 0.08;
 
     const easedX = THREE.MathUtils.lerp(0, target.x, intro) + px;
@@ -61,46 +61,41 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
         antialias: true,
         powerPreference: "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.18,
+        toneMappingExposure: 1.22,
       }}
       camera={{ fov: 30, position: [0, 1.4, 7.2] }}
       style={{ pointerEvents: "none" }}
     >
-      <color attach="background" args={["#080605"]} />
-      <fog attach="fog" args={["#080605", 4.5, 14]} />
+      <color attach="background" args={["#070503"]} />
+      <fog attach="fog" args={["#070503", 4.5, 14]} />
 
-      {/* Procedural HDR Image-Based Lighting for Realistic Specular & Reflections */}
       <Environment resolution={256}>
         <group rotation={[-Math.PI / 3, 0.4, 0]}>
-          {/* Key warm overhead softbox */}
           <Lightformer
             form="rect"
-            intensity={3.8}
+            intensity={4.2}
             position={[-4, 5, -3]}
             scale={[6, 4, 1]}
             color="#ffbe70"
             target={[0, 0, 0]}
           />
-          {/* Lateral cool cyan rim strip */}
           <Lightformer
             form="rect"
-            intensity={2.2}
+            intensity={2.6}
             position={[4, 2, 4]}
             scale={[8, 2, 1]}
             color="#5fb8c9"
           />
-          {/* Top diffuse fill */}
           <Lightformer
             form="ring"
-            intensity={1.6}
+            intensity={1.8}
             position={[0, 6, 0]}
             scale={[5, 5, 1]}
             color="#ffe3b8"
           />
-          {/* Dark warm floor bounce */}
           <Lightformer
             form="rect"
-            intensity={1.2}
+            intensity={1.4}
             position={[0, -4, 0]}
             scale={[10, 10, 1]}
             color="#422515"
@@ -110,11 +105,9 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
 
       <CameraRig cameraMotion={cameraMotion} introRef={introRef} />
 
-      {/* Cinematic 3-Point Lighting Setup */}
-      {/* Key Warm Directional Light with Soft Shadows */}
       <directionalLight
         position={[-4, 3.8, 3]}
-        intensity={3.2}
+        intensity={3.6}
         color="#ffaa55"
         castShadow
         shadow-mapSize={[2048, 2048]}
@@ -122,27 +115,23 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
         shadow-normalBias={0.02}
       />
 
-      {/* Cool Lateral Fill Light for Chiaroscuro Depth */}
       <directionalLight
         position={[3.5, 1.8, 2.5]}
-        intensity={0.7}
+        intensity={0.8}
         color="#3d5868"
       />
 
-      {/* Intense Amber Backlight / Rim Light */}
       <directionalLight
         position={[0, 4.2, -4.5]}
-        intensity={3.6}
+        intensity={3.8}
         color="#ff9940"
       />
 
-      {/* Ambient Fill */}
-      <ambientLight intensity={0.12} color="#2b2018" />
+      <ambientLight intensity={0.14} color="#2b2018" />
 
-      {/* Ground Amber Glow Reflection */}
       <pointLight
         position={[0, -1.2, 0]}
-        intensity={1.2}
+        intensity={1.4}
         distance={4.5}
         color="#ff8833"
       />

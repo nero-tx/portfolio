@@ -9,6 +9,7 @@ import IntroLoader from "@/components/IntroLoader";
 import Footer from "@/components/Footer";
 import ScrollReset from "@/components/ScrollReset";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://portfolio-phi-beige-81.vercel.app"),
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </TransitionProvider>
         </AudioProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

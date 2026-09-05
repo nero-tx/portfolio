@@ -17,46 +17,26 @@ export default function About() {
 
   useGSAP(
     () => {
-      const isMobile = window.innerWidth < 768;
+      const contextSplit = new SplitText(".about-context-manifesto", {
+        type: "lines,words",
+      });
 
-      if (!isMobile) {
-        const contextSplit = new SplitText(".about-context-manifesto", {
-          type: "lines,words",
-        });
-
-        // Context scrubbed illumination
-        gsap.fromTo(
-          contextSplit.words,
-          { color: "rgba(232, 220, 200, 0.15)", filter: "blur(2px)" },
-          {
-            color: "#E8DCC8",
-            filter: "blur(0px)",
-            stagger: 0.05,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about-context-manifesto",
-              start: "top 80%",
-              end: "bottom 50%",
-              scrub: 1.2,
-            },
+      gsap.fromTo(
+        contextSplit.words,
+        { color: "rgba(232, 220, 200, 0.15)", filter: "blur(2px)" },
+        {
+          color: "#E8DCC8",
+          filter: "blur(0px)",
+          stagger: 0.05,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".about-context-manifesto",
+            start: "top 80%",
+            end: "bottom 50%",
+            scrub: 1.2,
           },
-        );
-      } else {
-        gsap.fromTo(
-          ".about-context-manifesto",
-          { opacity: 0.4 },
-          {
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about-context-manifesto",
-              start: "top 85%",
-              end: "bottom 60%",
-              scrub: 1,
-            },
-          },
-        );
-      }
+        },
+      );
 
       gsap.fromTo(
         ".about-main-divider",
@@ -241,7 +221,7 @@ export default function About() {
                 <div
                   key={branch.code}
                   onMouseEnter={() => setActiveBranch(idx)}
-                  className={`tree-branch-card group relative rounded-xs border p-7 backdrop-blur-md transition-all duration-500 cursor-pointer ${
+                  className={`tree-branch-card group relative rounded-xs border p-7 backdrop-blur-md transition-all duration-500 cursor-pointer overflow-hidden ${
                     isSelected
                       ? "border-[#D98C4A]/60 bg-[#140e0a]/90 shadow-[0_0_30px_rgba(217,140,74,0.12)] -translate-y-1.5"
                       : "border-white/10 bg-[#0d0a07]/80 hover:border-white/20 hover:bg-[#110d0a]/90"

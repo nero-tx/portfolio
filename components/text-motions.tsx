@@ -188,24 +188,15 @@ export function AsciiGlitchRipple({
       startWave();
     };
 
-    const handleMove = (e: MouseEvent) => {
-      if (!stateRef.current.isHover) return;
-      const old = stateRef.current.cursorPos;
-      updateCursorPos(e);
-      if (stateRef.current.cursorPos !== old) startWave();
-    };
-
     const handleLeave = () => {
       stateRef.current.isHover = false;
     };
 
     el.addEventListener("mouseenter", handleEnter);
-    el.addEventListener("mousemove", handleMove);
     el.addEventListener("mouseleave", handleLeave);
 
     return () => {
       el.removeEventListener("mouseenter", handleEnter);
-      el.removeEventListener("mousemove", handleMove);
       el.removeEventListener("mouseleave", handleLeave);
       if (stateRef.current.animId) {
         cancelAnimationFrame(stateRef.current.animId);

@@ -21,28 +21,6 @@ export default function WorkPage() {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      const split = new SplitText(".work-page-title", { type: "chars" });
-
-      if (reduceMotion) {
-        gsap.set(split.chars, { opacity: 1, yPercent: 0, rotateX: 0 });
-      } else {
-        gsap.set(split.chars, {
-          yPercent: 120,
-          rotateX: -25,
-          opacity: 0,
-          transformOrigin: "50% 100%",
-        });
-        gsap.to(split.chars, {
-          yPercent: 0,
-          rotateX: 0,
-          opacity: 1,
-          duration: 1.1,
-          ease: "power4.out",
-          stagger: 0.038,
-          delay: 0.15,
-        });
-      }
-
       const rows = gsap.utils.toArray<HTMLElement>(".project-row");
 
       rows.forEach((row) => {
@@ -61,7 +39,6 @@ export default function WorkPage() {
           return;
         }
 
-        // Image clip-path reveal
         if (imgWrap) {
           gsap.fromTo(
             imgWrap,
@@ -75,7 +52,6 @@ export default function WorkPage() {
           );
         }
 
-        // Title lines slide up
         if (lines.length) {
           gsap.fromTo(
             lines,
@@ -90,7 +66,6 @@ export default function WorkPage() {
           );
         }
 
-        // Meta / desc / cta stagger
         const targets = [meta, desc, cta].filter(Boolean);
         if (targets.length) {
           gsap.fromTo(
@@ -107,7 +82,6 @@ export default function WorkPage() {
           );
         }
 
-        // Separator line
         if (separator) {
           gsap.fromTo(
             separator,
@@ -122,9 +96,19 @@ export default function WorkPage() {
         }
       });
 
-      return () => {
-        split.revert();
-      };
+      // Re-measure trigger positions once every project image has actually
+      // decoded. Without this, slow-loading images can shift row heights
+      // after ScrollTrigger has already calculated start offsets against
+      // the pre-load layout, causing reveals to fire at the wrong scroll spot.
+      const imgs = Array.from(
+        pageRef.current?.querySelectorAll("img") ?? [],
+      ) as HTMLImageElement[];
+
+      Promise.all(
+        imgs.map((img) =>
+          img.decode ? img.decode().catch(() => {}) : Promise.resolve(),
+        ),
+      ).then(() => ScrollTrigger.refresh());
     },
     { scope: pageRef },
   );
@@ -164,10 +148,10 @@ export default function WorkPage() {
                       src={project?.bgImage || project.image}
                       alt=""
                       aria-hidden
-                      // fill
-                      // quality={20}
+                      loading="lazy"
+                      decoding="async"
                       sizes="(max-width: 768px) 100vw, 55vw"
-                      className="scale-110 object-cover blur-3xl saturate-150 opacity-30"
+                      className="absolute inset-0 h-full w-full scale-110 object-cover blur-3xl saturate-150 opacity-30"
                     />
                   </div>
 
@@ -178,9 +162,10 @@ export default function WorkPage() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      // fill
+                      loading="lazy"
+                      decoding="async"
                       sizes="(max-width: 768px) 100vw, 55vw"
-                      className="object-cover brightness-75 saturate-90 transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
+                      className="absolute inset-0 h-full w-full object-cover brightness-75 saturate-90 transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-[#070503]/60 via-transparent to-transparent" />
 

@@ -184,3 +184,44 @@ body {
   background-image: url("/images/grain.webp");
   background-repeat: repeat;
 }
+
+.wh-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: wh-flicker 0.6s steps(2) infinite;
+}
+@keyframes wh-flicker {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-1%, 1%);
+  }
+  100% {
+    transform: translate(1%, -1%);
+  }
+}
+.wh-star {
+  animation-name: wh-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes wh-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wh-grain {
+    animation: none;
+  }
+  .wh-star {
+    animation: none;
+    opacity: 0.4;
+  }
+}

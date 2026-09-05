@@ -39,7 +39,7 @@ const subtextVariants: Variants = {
 
 const ViewAllSlide = () => {
   return (
-    <div className="group relative h-screen w-screen shrink-0 overflow-hidden rounded-lg">
+    <div className="group relative h-[85dvh] w-screen shrink-0 overflow-hidden rounded-lg">
       <div className="absolute size-full overflow-hidden bg-[#0B0907] rounded-lg">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,138,74,0.12),transparent_45%),radial-gradient(circle_at_75%_80%,rgba(180,120,55,0.08),transparent_40%)]" />
@@ -124,7 +124,7 @@ const ViewAllSlide = () => {
             whileInView="visible"
             viewport={{ once: true }}
             variants={headingContainer}
-            className="font-serif text-[13vw] font-light leading-[0.85] tracking-tighter text-[#E8DCC8] md:text-[7vw]"
+            className="font-circular-web text-5xl sm:text-7xl md:text-[clamp(4rem,8vw,8rem)] font-light leading-[0.88] tracking-tight text-[#E8DCC8]"
           >
             <span className="block overflow-hidden">
               <motion.span variants={lineVariants} className="block">
@@ -132,8 +132,8 @@ const ViewAllSlide = () => {
               </motion.span>
             </span>
             <span className="block overflow-hidden">
-              <motion.span variants={lineVariants} className="block">
-                projects
+              <motion.span variants={lineVariants} className="block text-[#D98C4A]">
+                projects.
               </motion.span>
             </span>
           </motion.h3>

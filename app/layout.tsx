@@ -49,7 +49,8 @@ export const metadata: Metadata = {
     siteName: "nero-tx",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "https://n3ro-tx.vercel.app/images/og-image.png",
+        secureUrl: "https://n3ro-tx.vercel.app/images/og-image.png",
         width: 1200,
         height: 630,
         alt: "nero-tx — Tarek Fawzy | Creative Developer & Systems Architect",
@@ -64,7 +65,8 @@ export const metadata: Metadata = {
     title: "nero-tx — Tarek Fawzy",
     description:
       "Sculpting digital experiences where brutalist aesthetics, real-time motion, and robust backend architecture converge.",
-    images: ["/images/og-image.png"],
+    images: ["https://n3ro-tx.vercel.app/images/og-image.png"],
+    creator: "@n3rotx",
   },
 };
 

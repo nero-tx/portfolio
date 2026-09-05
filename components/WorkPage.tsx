@@ -96,10 +96,6 @@ export default function WorkPage() {
         }
       });
 
-      // Re-measure trigger positions once every project image has actually
-      // decoded. Without this, slow-loading images can shift row heights
-      // after ScrollTrigger has already calculated start offsets against
-      // the pre-load layout, causing reveals to fire at the wrong scroll spot.
       const imgs = Array.from(
         pageRef.current?.querySelectorAll("img") ?? [],
       ) as HTMLImageElement[];

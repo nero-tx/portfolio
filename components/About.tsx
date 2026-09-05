@@ -221,7 +221,7 @@ export default function About() {
                 <div
                   key={branch.code}
                   onMouseEnter={() => setActiveBranch(idx)}
-                  className={`tree-branch-card group relative rounded-xs border p-7 backdrop-blur-md transition-all duration-500 cursor-pointer overflow-hidden ${
+                  className={`tree-branch-card group relative rounded-xs border p-4 md:p-7 backdrop-blur-md transition-all duration-500 cursor-pointer overflow-hidden ${
                     isSelected
                       ? "border-[#D98C4A]/60 bg-[#140e0a]/90 shadow-[0_0_30px_rgba(217,140,74,0.12)] -translate-y-1.5"
                       : "border-white/10 bg-[#0d0a07]/80 hover:border-white/20 hover:bg-[#110d0a]/90"
@@ -290,7 +290,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="tech-telemetry-grid mt-28 rounded-xs border border-white/10 bg-[#0d0a07]/60 p-8 md:p-10 backdrop-blur-xl">
+        <div className="tech-telemetry-grid mt-28 rounded-xs border border-white/10 bg-[#0d0a07]/60 p-6 md:p-10 backdrop-blur-xl">
           <div className="mb-8 gap-4 sm:flex-row sm:items-center border-b border-white/5 pb-6">
             <div className="flex items-center gap-3">
               <Layers className="size-4 text-[#D98C4A]" />

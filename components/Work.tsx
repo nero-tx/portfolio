@@ -1,402 +1,273 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { projects } from "@/utils/main-data";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
+import MagneticLink from "./MagneticLink";
+import ViewAllSlide from "./ViewAllSlide";
 
-gsap.registerPlugin(SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
-const DUST_LAYERS_DESKTOP = [
-  { count: 12, size: [1, 2], depth: 0.15 },
-  { count: 8, size: [2, 3.5], depth: 0.32 },
-  { count: 5, size: [3, 5], depth: 0.55 },
-] as const;
-
-const DUST_LAYERS_MOBILE = [
-  { count: 6, size: [1, 2], depth: 0.18 },
-  { count: 4, size: [2, 3.5], depth: 0.35 },
-] as const;
-
-const VIEWBOX_H = 900;
-const SUN_CY = 420;
-const SUN_R = 64;
-
-export default function WorkHero() {
-  const root = useRef<HTMLDivElement>(null);
-  const headlineWrap = useRef<HTMLHeadingElement>(null);
-  const subline = useRef<HTMLParagraphElement>(null);
-  const scrollLabel = useRef<HTMLSpanElement>(null);
-  const dustRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<HTMLDivElement>(null);
-  const svgWrapRef = useRef<HTMLDivElement>(null);
-
-  const ridgeBack = useRef<SVGGElement>(null);
-  const ridgeMid = useRef<SVGGElement>(null);
-  const ridgeFront = useRef<SVGGElement>(null);
-  const sunGroup = useRef<SVGGElement>(null);
-  const sunClip = useRef<SVGRectElement>(null);
-  const orbitOuter = useRef<SVGCircleElement>(null);
-  const orbitInner = useRef<SVGCircleElement>(null);
-  const shockRing = useRef<SVGCircleElement>(null);
-
-  const [viewBoxW, setViewBoxW] = useState(1600);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
-
-  useEffect(() => {
-    const el = svgWrapRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.height > 0) {
-        const aspect = rect.width / rect.height;
-        setViewBoxW(Math.max(600, Math.round(VIEWBOX_H * aspect)));
-      }
-    };
-
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const mqMobile = window.matchMedia("(max-width: 767px)");
-    const mqCoarse = window.matchMedia("(pointer: coarse)");
-    const sync = () => {
-      setIsMobile(mqMobile.matches);
-      setIsCoarsePointer(mqCoarse.matches);
-    };
-    sync();
-    mqMobile.addEventListener("change", sync);
-    mqCoarse.addEventListener("change", sync);
-    return () => {
-      mqMobile.removeEventListener("change", sync);
-      mqCoarse.removeEventListener("change", sync);
-    };
-  }, []);
-
-  const isNarrow = viewBoxW / VIEWBOX_H < 1.1;
-  const sunXPercent = isNarrow ? 0.58 : 0.74;
-  const SUN_CX = Math.round(viewBoxW * sunXPercent);
-
-  const dustLayers = isMobile ? DUST_LAYERS_MOBILE : DUST_LAYERS_DESKTOP;
+const Work = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+      const section = sectionRef.current;
+      const track = trackRef.current;
 
-      const split = new SplitText(headlineWrap.current, {
-        type: "lines",
-        linesClass: "wh-line",
+      if (!section || !track) return;
+
+      const getScrollAmount = () =>
+        Math.max(0, track.scrollWidth - window.innerWidth);
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: () => `+=${getScrollAmount() + window.innerHeight * 1.5}`,
+          scrub: 1,
+          pin: true,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+        },
       });
 
-      gsap.set(split.lines, {
-        clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)",
-        scaleY: 1.25,
-        transformOrigin: "0% 100%",
+      tl.to(track, {
+        x: () => -getScrollAmount(),
+        y: 0,
+        ease: "none",
+        duration: 2,
       });
-
-      if (sunClip.current) {
-        gsap.set(sunClip.current, { y: -(SUN_R * 2 + 4) });
-      }
-      if (shockRing.current) {
-        gsap.set(shockRing.current, {
-          scale: 0,
-          opacity: 0,
-          svgOrigin: `${SUN_CX} ${SUN_CY}`,
-        });
-      }
-
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-      if (sunClip.current) {
-        tl.to(sunClip.current, {
-          y: SUN_R * 2 + 4,
-          duration: reduceMotion ? 0.01 : isMobile ? 1 : 1.3,
-          ease: "power2.inOut",
-        });
-      }
 
       tl.to(
-        split.lines,
+        track,
         {
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-          scaleY: 1,
-          duration: reduceMotion ? 0.01 : isMobile ? 0.8 : 1,
-          stagger: isMobile ? 0.07 : 0.1,
-          ease: "power4.out",
+          opacity: 0,
+          filter: "blur(8px)",
+          scale: 0.96,
+          duration: 0.6,
+          ease: "power2.inOut",
         },
-        reduceMotion ? 0 : isMobile ? "-=0.55" : "-=0.7",
-      ).to(
-        subline.current,
-        { opacity: 1, y: 0, duration: reduceMotion ? 0.01 : 0.8 },
-        "-=0.5",
+        "+=0.2",
       );
 
-      if (shockRing.current) {
-        tl.to(
-          shockRing.current,
-          {
-            scale: isMobile ? 2.2 : 3,
-            opacity: 0,
-            duration: reduceMotion ? 0.01 : 1,
-            ease: "power2.out",
-          },
-          "-=0.6",
-        ).set(shockRing.current, { opacity: 0.9 }, "<");
-      }
+      tl.to(
+        ".outro-overlay",
+        {
+          backgroundColor: "rgba(10, 8, 6, 0.85)",
+          backdropFilter: "blur(12px)",
+          duration: 0.6,
+        },
+        "<",
+      );
 
-      if (scrollLabel.current) {
-        tl.to(scrollLabel.current, { opacity: 0.6, duration: 0.6 }, "-=0.3");
-      }
+      tl.to(
+        ".outro-sigil",
+        {
+          opacity: 1,
+          scaleY: 1,
+          duration: 0.4,
+          ease: "power3.out",
+        },
+        "-=0.2",
+      );
 
-      if (reduceMotion) return;
+      tl.to(
+        ".outro-label",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: "power3.out",
+        },
+        "-=0.1",
+      );
 
-      const orbitTweens = [orbitOuter.current, orbitInner.current]
-        .filter(Boolean)
-        .map((el, i) =>
-          gsap.to(el, {
-            rotation: i === 0 ? 360 : -360,
-            duration: i === 0 ? 22 : 15,
-            repeat: -1,
-            ease: "none",
-            svgOrigin: `${SUN_CX} ${SUN_CY}`,
-          }),
-        );
+      tl.to(
+        ".outro-title",
+        {
+          opacity: 1,
+          filter: "blur(0px)",
+          scale: 1,
+          duration: 0.7,
+          ease: "power2.out",
+        },
+        "-=0.2",
+      );
 
-      if (dustRef.current) {
-        const motes =
-          dustRef.current.querySelectorAll<HTMLElement>("[data-mote]");
-        motes.forEach((mote) => {
-          const duration = 20 + Math.random() * 20;
-          const xDrift = (Math.random() - 0.5) * 60;
-          gsap.to(mote, {
-            y: "-=120",
-            x: `+=${xDrift}`,
-            duration,
-            repeat: -1,
-            ease: "none",
-            delay: -Math.random() * duration,
-          });
-        });
-      }
+      tl.to(
+        ".outro-line",
+        {
+          width: "120px",
+          opacity: 1,
+          duration: 0.6,
+          ease: "power4.out",
+        },
+        "-=0.4",
+      );
 
-      if (isCoarsePointer) return;
+      tl.to({}, { duration: 0.4 });
 
-      const quickX = gsap.quickTo(sceneRef.current, "x", {
-        duration: 1.1,
-        ease: "power3.out",
-      });
-      const quickY = gsap.quickTo(sceneRef.current, "y", {
-        duration: 1.1,
-        ease: "power3.out",
-      });
-      const quickBack = gsap.quickTo(ridgeBack.current, "x", {
-        duration: 1.6,
-        ease: "power3.out",
-      });
-      const quickMid = gsap.quickTo(ridgeMid.current, "x", {
-        duration: 1.3,
-        ease: "power3.out",
-      });
-      const quickFront = gsap.quickTo(ridgeFront.current, "x", {
-        duration: 1,
-        ease: "power3.out",
-      });
-      const quickSun = gsap.quickTo(sunGroup.current, "x", {
-        duration: 1.4,
-        ease: "power3.out",
-      });
+      const images = Array.from(track.querySelectorAll("img"));
+      let loaded = 0;
 
-      const onPointerMove = (e: PointerEvent) => {
-        const { innerWidth, innerHeight } = window;
-        const nx = e.clientX / innerWidth - 0.5;
-        const ny = e.clientY / innerHeight - 0.5;
-        quickX(nx * 14);
-        quickY(ny * 10);
-        quickBack(nx * 6);
-        quickMid(nx * 14);
-        quickFront(nx * 26);
-        quickSun(nx * -10);
+      const onImageLoad = () => {
+        loaded += 1;
+        if (loaded === images.length) {
+          ScrollTrigger.refresh();
+        }
       };
-      window.addEventListener("pointermove", onPointerMove);
+
+      images.forEach((img) => {
+        if (img.complete) {
+          onImageLoad();
+        } else {
+          img.addEventListener("load", onImageLoad, { once: true });
+          img.addEventListener("error", onImageLoad, { once: true });
+        }
+      });
+
+      const fallback = window.setTimeout(() => ScrollTrigger.refresh(), 1000);
 
       return () => {
-        window.removeEventListener("pointermove", onPointerMove);
-        orbitTweens.forEach((t) => t.kill());
+        window.clearTimeout(fallback);
+        images.forEach((img) => {
+          img.removeEventListener("load", onImageLoad);
+          img.removeEventListener("error", onImageLoad);
+        });
+        tl.scrollTrigger?.kill();
+        tl.kill();
       };
     },
-    { scope: root, dependencies: [viewBoxW, isMobile, isCoarsePointer] },
+    { scope: sectionRef },
   );
 
   return (
     <section
-      ref={root}
-      className="relative h-dvh w-full overflow-hidden bg-[#0A0908] text-[#E8DCC8]"
+      ref={sectionRef}
+      id="work"
+      className="relative h-dvh w-full overflow-hidden text-[#E9DFC8]"
     >
-      <div className="wh-grain pointer-events-none absolute inset-0 z-30 opacity-6 mix-blend-overlay" />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-linear(circle_at_70%_50%,rgba(180,120,55,0.12),transparent_35%)]" />
+
+        <div className="absolute inset-0 opacity-[0.035] bg-[url('/images/grain.png')]" />
+      </div>
 
       <div
-        className="pointer-events-none absolute inset-0 z-20"
-        style={{
-          background:
-            "radial-gradient(ellipse at 60% 40%, transparent 30%, #0A0908 92%)",
-        }}
-      />
+        ref={trackRef}
+        className="relative flex h-full items-center w-max will-change-transform"
+      >
+        <ViewAllSlide />
 
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[45%] opacity-40"
-        style={{
-          background: "linear-gradient(to top, #2B1D14 0%, transparent 100%)",
-          filter: "blur(40px)",
-        }}
-      />
-
-      <div ref={sceneRef} className="absolute inset-0 z-10">
-        <div ref={svgWrapRef} className="absolute inset-0">
-          <svg
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            viewBox={`0 0 ${viewBoxW} ${VIEWBOX_H}`}
-            preserveAspectRatio="xMidYMax slice"
-            aria-hidden="true"
+        {projects.map((project) => (
+          <div
+            key={project.number}
+            className="group relative h-[85dvh] md:h-full w-screen shrink-0 overflow-hidden"
           >
-            <defs>
-              <clipPath id="sun-clip">
-                <rect
-                  x={SUN_CX - SUN_R - 4}
-                  y={SUN_CY - SUN_R - 4}
-                  width={SUN_R * 2 + 8}
-                  height={SUN_R * 2 + 8}
-                />
-              </clipPath>
-            </defs>
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <img
+                src={project.bgImage || project.image}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover scale-110 filter blur-2xl md:blur-3xl saturate-100 opacity-60 transition-transform duration-1000 ease-out group-hover:scale-120"
+              />
+              <div className="absolute inset-0 bg-[#070503]/50 md:bg-[#070503]/20" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#070503_95%)]" />
+            </div>
 
-            <g ref={sunGroup} clipPath="url(#sun-clip)">
-              <circle
-                cx={SUN_CX}
-                cy={SUN_CY}
-                r={SUN_R}
-                fill="#D98C4A"
-                opacity="0.85"
+            <div className="absolute inset-4 sm:inset-8 md:inset-[5vw] overflow-hidden rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xs">
+              <div className="absolute inset-0 z-10 bg-linear-to-t from-[#070503]/95 via-[#070503]/40 to-[#070503]/20 md:via-transparent md:to-[#070503]/20" />
+              <img
+                src={project.image}
+                alt={project.title}
+                className="h-full w-full object-cover grayscale-15 brightness-[0.7] transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04] rounded-lg"
               />
-              <rect
-                ref={sunClip}
-                x={SUN_CX - SUN_R - 8}
-                y={SUN_CY - SUN_R - 4}
-                width={SUN_R * 2 + 16}
-                height={SUN_R * 2 + 8}
-                fill="#0A0908"
-              />
-            </g>
-            <circle
-              ref={orbitOuter}
-              cx={SUN_CX}
-              cy={SUN_CY}
-              r={SUN_R + 34}
-              fill="none"
-              stroke="#D98C4A"
-              strokeOpacity="0.25"
-              strokeWidth="0.75"
-              strokeDasharray="2 8"
-            />
-            {!isMobile && (
-              <circle
-                ref={orbitInner}
-                cx={SUN_CX}
-                cy={SUN_CY}
-                r={SUN_R + 18}
-                fill="none"
-                stroke="#EFE6D4"
-                strokeOpacity="0.18"
-                strokeWidth="0.5"
-                strokeDasharray="1 6"
-              />
-            )}
-            <circle
-              ref={shockRing}
-              cx={SUN_CX}
-              cy={SUN_CY}
-              r={SUN_R}
-              fill="none"
-              stroke="#D98C4A"
-              strokeWidth="1.5"
-            />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(217,140,74,0.18),transparent_50%)]" />
+            </div>
 
-            <g ref={ridgeBack} opacity="0.35">
-              <path
-                d={`M0,620 C${viewBoxW * 0.19},560 ${viewBoxW * 0.31},600 ${viewBoxW * 0.5},560 C${viewBoxW * 0.69},520 ${viewBoxW * 0.84},560 ${viewBoxW},540 L${viewBoxW},900 L0,900 Z`}
-                fill="#3A2A1D"
-              />
-            </g>
-            <g ref={ridgeMid} opacity="0.55">
-              <path
-                d={`M0,700 C${viewBoxW * 0.16},660 ${viewBoxW * 0.34},700 ${viewBoxW * 0.53},660 C${viewBoxW * 0.72},620 ${viewBoxW * 0.88},660 ${viewBoxW},640 L${viewBoxW},900 L0,900 Z`}
-                fill="#2B1D14"
-              />
-            </g>
-            <g ref={ridgeFront} opacity="0.9">
-              <path
-                d={`M0,780 C${viewBoxW * 0.19},740 ${viewBoxW * 0.38},790 ${viewBoxW * 0.56},750 C${viewBoxW * 0.75},710 ${viewBoxW * 0.88},760 ${viewBoxW},730 L${viewBoxW},900 L0,900 Z`}
-                fill="#0A0908"
-              />
-            </g>
-          </svg>
+            <div className="absolute inset-x-6 sm:inset-x-12 bottom-12 sm:bottom-16 md:inset-x-auto md:left-[10vw] md:bottom-[8vw] z-20 max-w-xl p-3">
+              <div className="mb-2 sm:mb-4 flex items-center gap-3">
+                <span className="font-mono text-[9px] sm:text-xs uppercase tracking-[0.3em] text-[#D98C4A]">
+                  {project.category}
+                </span>
+                <span className="h-px w-4 sm:w-6 bg-[#D98C4A]/40" />
+                <span className="font-mono text-[9px] sm:text-xs text-[#E8DCC8]/40">
+                  {project.year}
+                </span>
+              </div>
+
+              <h3 className="font-circular-web text-4xl sm:text-6xl md:text-[clamp(3.5rem,7vw,7rem)] font-light leading-[0.92] tracking-tight text-[#EFE6D4]">
+                {project.title}
+              </h3>
+
+              <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-8">
+                <p className="max-w-md font-general text-xs sm:text-sm leading-relaxed text-[#E8DCC8]/75">
+                  {project.description}
+                </p>
+                <div className="block md:hidden pt-2">
+                  <a
+                    href={`/work/${project.slug}`}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#D98C4A]/50 bg-[#D98C4A]/15 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#EFE6D4] backdrop-blur-md"
+                  >
+                    <span>View Project</span>
+                    <span className="text-[#D98C4A]">→</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <MagneticLink href={`/work/${project.slug}`} />
+
+            <div className="absolute bottom-0 left-0 right-0 z-30 h-px bg-linear-to-r from-transparent via-[#D98C4A]/30 to-transparent" />
+          </div>
+        ))}
+      </div>
+
+      {/*mini-footer */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-[#D98C4A]/12 bg-[#070503]/60 px-8 py-3 backdrop-blur-sm md:px-16">
+        <div className="flex items-center gap-5">
+          <span className="font-mono text-[8px] uppercase tracking-[0.45em] text-[#D98C4A]/60">
+            SELECTED WORK
+          </span>
+          <div className="hidden h-3 w-px bg-[#E8DCC8]/15 md:block" />
+          <span className="hidden font-mono text-[8px] uppercase tracking-[0.35em] text-[#E8DCC8]/30 md:inline">
+            {projects.length} projects
+          </span>
         </div>
 
-        <div ref={dustRef} className="absolute inset-0">
-          {dustLayers.map((layer, li) =>
-            Array.from({ length: layer.count }).map((_, i) => {
-              const size =
-                layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]);
-              return (
-                <div
-                  key={`${li}-${i}`}
-                  data-mote
-                  className="absolute rounded-full"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${60 + Math.random() * 40}%`,
-                    width: size,
-                    height: size,
-                    background: "#8A7A63",
-                    opacity: layer.depth,
-                    filter: `blur(${(1 - layer.depth) * 1.5}px)`,
-                  }}
-                />
-              );
-            }),
-          )}
-        </div>
-
-        <div className="absolute inset-0 flex flex-col justify-end px-6 pb-20 sm:px-10 md:px-20 md:pb-36">
-          <h1
-            ref={headlineWrap}
-            className="max-w-3xl font-general leading-[0.95] tracking-tight text-[#E8DCC8]"
-            style={{ fontSize: "clamp(2.75rem, 11vw, 7rem)" }}
-          >
-            Selected Work
-          </h1>
-          <p
-            ref={subline}
-            className="mt-5 max-w-md translate-y-3 font-general text-sm text-[#E8DCC8]/70 opacity-0 sm:mt-6 md:text-base"
-          >
-            Interfaces built like architecture — deliberate, load-bearing, built
-            to outlast the demo.
-          </p>
+        <div className="hidden items-center gap-3 md:flex">
+          <span className="font-mono text-[8px] uppercase tracking-[0.35em] text-[#E8DCC8]/30">
+            Scroll to explore
+          </span>
+          <div className="h-px w-10 overflow-hidden bg-[#E8DCC8]/15">
+            <div className="h-full w-full origin-left animate-pulse bg-[#C88A4A]/60" />
+          </div>
         </div>
       </div>
 
-      <span
-        ref={scrollLabel}
-        className="absolute bottom-6 right-6 z-20 font-mono text-[10px] tracking-wide text-[#E8DCC8] opacity-0 sm:bottom-10 sm:right-[10%] sm:text-xs"
-      >
-        Scroll
-      </span>
+      {/* End Scene Outro */}
+      <div className="outro-overlay pointer-events-none absolute inset-0 z-40 flex flex-col items-center justify-center bg-transparent">
+        <div className="outro-sigil mb-8 opacity-0 origin-bottom">
+          <div className="h-16 w-px bg-linear-to-b from-transparent via-[#C88A4A]/80 to-transparent mx-auto" />
+        </div>
+
+        <span className="outro-label font-mono text-[10px] uppercase tracking-[0.5em] text-[#C88A4A] opacity-0 translate-y-4 text-center">
+          Good ideas are nice
+        </span>
+
+        <h2 className="outro-title mt-8 text-[clamp(2rem,5vw,5rem)] text-[#E8DCC8] opacity-0 blur-md scale-95 uppercase text-center max-w-5xl px-6 leading-[1.1] font-circular-web">
+          Making them actually work is better.
+        </h2>
+
+        <div className="outro-line mt-12 h-px w-0 bg-[#C88A4A]/50 mx-auto" />
+      </div>
     </section>
   );
-}
+};
+
+export default Work;

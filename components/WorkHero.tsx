@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import useIsMobile from "@/hooks/useIsMobile";
 
 gsap.registerPlugin(SplitText);
 
@@ -19,10 +18,9 @@ const DUST_LAYERS_MOBILE = [
   { count: 4, size: [2, 3.5], depth: 0.35 },
 ] as const;
 
-const DESKTOP = { w: 1600, h: 900, sunCx: 1184, sunCy: 420, sunR: 64 };
-const MOBILE = { w: 800, h: 1400, sunCx: 400, sunCy: 340, sunR: 52 };
-
-const STAR_COUNT = 14;
+const VIEWBOX_H = 900;
+const SUN_CY = 420;
+const SUN_R = 64;
 
 export default function WorkHero() {
   const root = useRef<HTMLDivElement>(null);
@@ -31,6 +29,7 @@ export default function WorkHero() {
   const scrollLabel = useRef<HTMLSpanElement>(null);
   const dustRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
+  const svgWrapRef = useRef<HTMLDivElement>(null);
 
   const ridgeBack = useRef<SVGGElement>(null);
   const ridgeMid = useRef<SVGGElement>(null);
@@ -41,25 +40,48 @@ export default function WorkHero() {
   const orbitInner = useRef<SVGCircleElement>(null);
   const shockRing = useRef<SVGCircleElement>(null);
 
-  const isMobile = useIsMobile();
+  const [viewBoxW, setViewBoxW] = useState(1600);
+  const [isMobile, setIsMobile] = useState(false);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 
   useEffect(() => {
-    const mqCoarse = window.matchMedia("(pointer: coarse)");
-    const sync = () => setIsCoarsePointer(mqCoarse.matches);
-    sync();
-    mqCoarse.addEventListener("change", sync);
-    return () => mqCoarse.removeEventListener("change", sync);
+    const el = svgWrapRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.height > 0) {
+        const aspect = rect.width / rect.height;
+        setViewBoxW(Math.max(600, Math.round(VIEWBOX_H * aspect)));
+      }
+    };
+
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
-  const geo = isMobile ? MOBILE : DESKTOP;
-  const {
-    w: viewBoxW,
-    h: viewBoxH,
-    sunCx: SUN_CX,
-    sunCy: SUN_CY,
-    sunR: SUN_R,
-  } = geo;
+  useEffect(() => {
+    const mqMobile = window.matchMedia("(max-width: 767px)");
+    const mqCoarse = window.matchMedia("(pointer: coarse)");
+    const sync = () => {
+      setIsMobile(mqMobile.matches);
+      setIsCoarsePointer(mqCoarse.matches);
+    };
+    sync();
+    mqMobile.addEventListener("change", sync);
+    mqCoarse.addEventListener("change", sync);
+    return () => {
+      mqMobile.removeEventListener("change", sync);
+      mqCoarse.removeEventListener("change", sync);
+    };
+  }, []);
+
+  const isNarrow = viewBoxW / VIEWBOX_H < 1.1;
+  const sunXPercent = isNarrow ? 0.58 : 0.74;
+  const SUN_CX = Math.round(viewBoxW * sunXPercent);
+
   const dustLayers = isMobile ? DUST_LAYERS_MOBILE : DUST_LAYERS_DESKTOP;
 
   useGSAP(
@@ -209,8 +231,7 @@ export default function WorkHero() {
         orbitTweens.forEach((t) => t.kill());
       };
     },
-
-    { scope: root, dependencies: [isMobile, isCoarsePointer] },
+    { scope: root, dependencies: [viewBoxW, isMobile, isCoarsePointer] },
   );
 
   return (
@@ -223,9 +244,8 @@ export default function WorkHero() {
       <div
         className="pointer-events-none absolute inset-0 z-20"
         style={{
-          background: isMobile
-            ? "radial-gradient(ellipse at 50% 24%, transparent 25%, #0A0908 88%)"
-            : "radial-gradient(ellipse at 60% 40%, transparent 30%, #0A0908 92%)",
+          background:
+            "radial-gradient(ellipse at 60% 40%, transparent 30%, #0A0908 92%)",
         }}
       />
 
@@ -238,93 +258,95 @@ export default function WorkHero() {
       />
 
       <div ref={sceneRef} className="absolute inset-0 z-10">
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          viewBox={`0 0 ${viewBoxW} ${viewBoxH}`}
-          preserveAspectRatio={isMobile ? "xMidYMid slice" : "xMidYMax slice"}
-          aria-hidden="true"
-        >
-          <defs>
-            <clipPath id="sun-clip">
-              <rect
-                x={SUN_CX - SUN_R - 4}
-                y={SUN_CY - SUN_R - 4}
-                width={SUN_R * 2 + 8}
-                height={SUN_R * 2 + 8}
-              />
-            </clipPath>
-          </defs>
+        <div ref={svgWrapRef} className="absolute inset-0">
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox={`0 0 ${viewBoxW} ${VIEWBOX_H}`}
+            preserveAspectRatio="xMidYMax slice"
+            aria-hidden="true"
+          >
+            <defs>
+              <clipPath id="sun-clip">
+                <rect
+                  x={SUN_CX - SUN_R - 4}
+                  y={SUN_CY - SUN_R - 4}
+                  width={SUN_R * 2 + 8}
+                  height={SUN_R * 2 + 8}
+                />
+              </clipPath>
+            </defs>
 
-          <g ref={sunGroup} clipPath="url(#sun-clip)">
+            <g ref={sunGroup} clipPath="url(#sun-clip)">
+              <circle
+                cx={SUN_CX}
+                cy={SUN_CY}
+                r={SUN_R}
+                fill="#D98C4A"
+                opacity="0.85"
+              />
+              <rect
+                ref={sunClip}
+                x={SUN_CX - SUN_R - 8}
+                y={SUN_CY - SUN_R - 4}
+                width={SUN_R * 2 + 16}
+                height={SUN_R * 2 + 8}
+                fill="#0A0908"
+              />
+            </g>
             <circle
+              ref={orbitOuter}
+              cx={SUN_CX}
+              cy={SUN_CY}
+              r={SUN_R + 34}
+              fill="none"
+              stroke="#D98C4A"
+              strokeOpacity="0.25"
+              strokeWidth="0.75"
+              strokeDasharray="2 8"
+            />
+            {!isMobile && (
+              <circle
+                ref={orbitInner}
+                cx={SUN_CX}
+                cy={SUN_CY}
+                r={SUN_R + 18}
+                fill="none"
+                stroke="#EFE6D4"
+                strokeOpacity="0.18"
+                strokeWidth="0.5"
+                strokeDasharray="1 6"
+              />
+            )}
+            <circle
+              ref={shockRing}
               cx={SUN_CX}
               cy={SUN_CY}
               r={SUN_R}
-              fill="#D98C4A"
-              opacity="0.85"
-            />
-            <rect
-              ref={sunClip}
-              x={SUN_CX - SUN_R - 8}
-              y={SUN_CY - SUN_R - 4}
-              width={SUN_R * 2 + 16}
-              height={SUN_R * 2 + 8}
-              fill="#0A0908"
-            />
-          </g>
-          <circle
-            ref={orbitOuter}
-            cx={SUN_CX}
-            cy={SUN_CY}
-            r={SUN_R + 34}
-            fill="none"
-            stroke="#D98C4A"
-            strokeOpacity="0.25"
-            strokeWidth="0.75"
-            strokeDasharray="2 8"
-          />
-          {!isMobile && (
-            <circle
-              ref={orbitInner}
-              cx={SUN_CX}
-              cy={SUN_CY}
-              r={SUN_R + 18}
               fill="none"
-              stroke="#EFE6D4"
-              strokeOpacity="0.18"
-              strokeWidth="0.5"
-              strokeDasharray="1 6"
+              stroke="#D98C4A"
+              strokeWidth="1.5"
             />
-          )}
-          <circle
-            ref={shockRing}
-            cx={SUN_CX}
-            cy={SUN_CY}
-            r={SUN_R}
-            fill="none"
-            stroke="#D98C4A"
-            strokeWidth="1.5"
-          />
 
-          <g ref={ridgeBack} opacity="0.35">
-            <path
-              d={`M0,${viewBoxH * 0.689} C${viewBoxW * 0.19},${viewBoxH * 0.622} ${viewBoxW * 0.31},${viewBoxH * 0.667} ${viewBoxW * 0.5},${viewBoxH * 0.622} C${viewBoxW * 0.69},${viewBoxH * 0.578} ${viewBoxW * 0.84},${viewBoxH * 0.622} ${viewBoxW},${viewBoxH * 0.6} L${viewBoxW},${viewBoxH} L0,${viewBoxH} Z`}
-              fill="#3A2A1D"
-            />
-          </g>
-          <g ref={ridgeMid} opacity="0.55">
-            <path
-              d={`M0,${viewBoxH * 0.778} C${viewBoxW * 0.16},${viewBoxH * 0.733} ${viewBoxW * 0.34},${viewBoxH * 0.778} ${viewBoxW * 0.53},${viewBoxH * 0.733} C${viewBoxW * 0.72},${viewBoxH * 0.689} ${viewBoxW * 0.88},${viewBoxH * 0.733} ${viewBoxW},${viewBoxH * 0.711} L${viewBoxW},${viewBoxH} L0,${viewBoxH} Z`}
-              fill="#2B1D14"
-            />
-          </g>
-          <g ref={ridgeFront} opacity="0.9">
-            <path
-              d={`M0,${viewBoxH * 0.867} C${viewBoxW * 0.19},${viewBoxH * 0.822} ${viewBoxW * 0.38},${viewBoxH * 0.878} ${viewBoxW * 0.56},${viewBoxH * 0.833} C${viewBoxW * 0.75},${viewBoxH * 0.789} ${viewBoxW * 0.88},${viewBoxH * 0.844} ${viewBoxW},${viewBoxH * 0.811} L${viewBoxW},${viewBoxH} L0,${viewBoxH} Z`}
-              fill="#0A0908"
-            />
-          </g>
-        </svg>
+            <g ref={ridgeBack} opacity="0.35">
+              <path
+                d={`M0,620 C${viewBoxW * 0.19},560 ${viewBoxW * 0.31},600 ${viewBoxW * 0.5},560 C${viewBoxW * 0.69},520 ${viewBoxW * 0.84},560 ${viewBoxW},540 L${viewBoxW},900 L0,900 Z`}
+                fill="#3A2A1D"
+              />
+            </g>
+            <g ref={ridgeMid} opacity="0.55">
+              <path
+                d={`M0,700 C${viewBoxW * 0.16},660 ${viewBoxW * 0.34},700 ${viewBoxW * 0.53},660 C${viewBoxW * 0.72},620 ${viewBoxW * 0.88},660 ${viewBoxW},640 L${viewBoxW},900 L0,900 Z`}
+                fill="#2B1D14"
+              />
+            </g>
+            <g ref={ridgeFront} opacity="0.9">
+              <path
+                d={`M0,780 C${viewBoxW * 0.19},740 ${viewBoxW * 0.38},790 ${viewBoxW * 0.56},750 C${viewBoxW * 0.75},710 ${viewBoxW * 0.88},760 ${viewBoxW},730 L${viewBoxW},900 L0,900 Z`}
+                fill="#0A0908"
+              />
+            </g>
+          </svg>
+        </div>
 
         <div ref={dustRef} className="absolute inset-0">
           {dustLayers.map((layer, li) =>
@@ -349,22 +371,6 @@ export default function WorkHero() {
               );
             }),
           )}
-
-          {isMobile &&
-            Array.from({ length: STAR_COUNT }).map((_, i) => (
-              <span
-                key={`star-${i}`}
-                className="wh-star absolute rounded-full bg-[#EFE6D4]"
-                style={{
-                  left: `${8 + Math.random() * 84}%`,
-                  top: `${4 + Math.random() * 38}%`,
-                  width: 1 + Math.random() * 1.2,
-                  height: 1 + Math.random() * 1.2,
-                  animationDuration: `${2.5 + Math.random() * 3}s`,
-                  animationDelay: `${-Math.random() * 4}s`,
-                }}
-              />
-            ))}
         </div>
 
         <div className="absolute inset-0 flex flex-col justify-end px-6 pb-20 sm:px-10 md:px-20 md:pb-36">

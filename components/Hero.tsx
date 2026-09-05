@@ -162,21 +162,21 @@ export default function Hero() {
           <div className="hero-fade-in mt-6 sm:mt-8 space-y-3 max-w-md">
             <div className="flex items-center gap-2 text-[#D98C4A]">
               <Sparkles className="size-3.5 shrink-0" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E8DCC8]/80 font-medium">
-                The Story Behind The Work
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E8DCC8] font-medium">
+                What Makes It Work!
               </span>
             </div>
             <p className="font-general text-sm sm:text-[15px] leading-relaxed text-[#A6998A]">
-              Transitioned from Agriculture into deep software engineering.
-              Driven by curiosity for how systems operate, scale under load, and
-              merge with brutalist motion and cinematic web interactions.
+              Full-Stack Engineer, building from database to browser. I care
+              about how systems are structured, how products behave under real
+              use, and how the final experience feels in your hands.
             </p>
 
             <div className="pt-2">
               <Link
                 href="/whoami"
                 data-cursor="link"
-                className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[#D98C4A] transition-colors hover:text-[#EFE6D4]"
+                className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[#D98C4A] transition-colors hover:text-[#EFE6D4] border-b"
               >
                 <span>Read Full Story</span>
                 <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -190,7 +190,7 @@ export default function Hero() {
             <div className="flex items-center gap-4">
               <div
                 aria-label="Scroll to about section"
-                className="flex size-10 items-center justify-center rounded-full border border-[#D98C4A]/40 bg-[#0e0a07]/80 backdrop-blur-sm transition-all duration-300 hover:border-[#D98C4A] hover:scale-105"
+                className="flex shrink-0 size-9 items-center justify-center rounded-full border border-[#D98C4A]/40 bg-[#0e0a07]/80 backdrop-blur-sm transition-all duration-300 hover:border-[#D98C4A] hover:scale-105"
               >
                 <ArrowDown className="size-4 animate-bounce text-[#D98C4A]" />
               </div>
@@ -199,7 +199,7 @@ export default function Hero() {
                 <div className="font-mono text-[9px] uppercase tracking-[0.35em] text-white/70">
                   SCROLL TO EXPLORE
                 </div>
-                <div className="font-mono text-[8px] uppercase tracking-[0.25em] text-[#D98C4A]/70">
+                <div className="font-mono text-[8px] hidden md:inline-flex uppercase tracking-[0.25em] text-[#D98C4A]/70">
                   ARCHITECTURE // MOTION // WORK
                 </div>
               </div>
@@ -225,9 +225,9 @@ export default function Hero() {
             </div>
 
             <p className="font-general text-sm leading-relaxed text-[#B8AA98]">
-              Architecting scalable full-stack applications with Next.js, Node,
-              PostgreSQL, and real-time WebGL. Built with engineering rigor and
-              refined interaction design.
+              Architecting scalable full-stack applications with Next.js,
+              Node.js, and PostgreSQL — with a focus on solid systems, clean
+              architecture, and experiences that feel as good as they work.
             </p>
           </div>
         </div>

@@ -11,6 +11,20 @@ import { useSceneMotion } from "@/hooks/useSceneMotion";
 import type { CameraMotionState } from "@/utils/artifactMotion";
 import { Frameloop } from "@react-three/fiber";
 
+// Suppress internal React-Three-Fiber v9 THREE.Clock deprecation notice
+if (typeof window !== "undefined") {
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("THREE.Clock: This module has been deprecated")
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
 function CameraRig({
   cameraMotion,
   introRef,
@@ -54,14 +68,18 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
 
   return (
     <Canvas
-      shadows
-      dpr={[1, 2]}
+      shadows={{ type: THREE.PCFShadowMap }}
+      dpr={
+        typeof window !== "undefined" && window.innerWidth < 768
+          ? [1, 1.2]
+          : [1, 1.5]
+      }
       frameloop={frameloop}
       gl={{
         antialias: true,
         powerPreference: "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.22,
+        toneMappingExposure: 1.2,
       }}
       camera={{ fov: 30, position: [0, 1.4, 7.2] }}
       style={{ pointerEvents: "none" }}
@@ -69,11 +87,11 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
       <color attach="background" args={["#070503"]} />
       <fog attach="fog" args={["#070503", 4.5, 14]} />
 
-      <Environment resolution={256}>
+      <Environment resolution={128}>
         <group rotation={[-Math.PI / 3, 0.4, 0]}>
           <Lightformer
             form="rect"
-            intensity={4.2}
+            intensity={3.8}
             position={[-4, 5, -3]}
             scale={[6, 4, 1]}
             color="#ffbe70"
@@ -81,24 +99,17 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
           />
           <Lightformer
             form="rect"
-            intensity={2.6}
+            intensity={2.2}
             position={[4, 2, 4]}
             scale={[8, 2, 1]}
             color="#5fb8c9"
           />
           <Lightformer
             form="ring"
-            intensity={1.8}
+            intensity={1.5}
             position={[0, 6, 0]}
             scale={[5, 5, 1]}
             color="#ffe3b8"
-          />
-          <Lightformer
-            form="rect"
-            intensity={1.4}
-            position={[0, -4, 0]}
-            scale={[10, 10, 1]}
-            color="#422515"
           />
         </group>
       </Environment>
@@ -107,31 +118,31 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
 
       <directionalLight
         position={[-4, 3.8, 3]}
-        intensity={3.6}
+        intensity={3.4}
         color="#ffaa55"
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0001}
         shadow-normalBias={0.02}
       />
 
       <directionalLight
         position={[3.5, 1.8, 2.5]}
-        intensity={0.8}
+        intensity={0.7}
         color="#3d5868"
       />
 
       <directionalLight
         position={[0, 4.2, -4.5]}
-        intensity={3.8}
+        intensity={3.2}
         color="#ff9940"
       />
 
-      <ambientLight intensity={0.14} color="#2b2018" />
+      <ambientLight intensity={0.15} color="#2b2018" />
 
       <pointLight
         position={[0, -1.2, 0]}
-        intensity={1.4}
+        intensity={1.2}
         distance={4.5}
         color="#ff8833"
       />

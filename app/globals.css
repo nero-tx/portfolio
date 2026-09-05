@@ -119,9 +119,15 @@ body {
   z-index: 60;
   pointer-events: none;
   mix-blend-mode: overlay;
-  opacity: 0.12;
+  opacity: 0.1;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 180px 180px;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .grain-overlay {
+    display: none;
+  }
 }
 
 .vignette {
@@ -174,6 +180,8 @@ body {
   );
   filter: blur(0.5px);
   will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
   animation-name: windSweep;
   animation-timing-function: linear;
   animation-iteration-count: infinite;

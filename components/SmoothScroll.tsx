@@ -15,6 +15,9 @@ export default function SmoothScroll({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
+        syncTouch: false,
+        touchMultiplier: 1.2,
+        wheelMultiplier: 1.0,
       }}
     >
       {children}

@@ -82,13 +82,11 @@ export default function Artifact({
         color: "#01090d",
         emissive: "#5fb8c9",
         emissiveIntensity: 0.95,
-        roughness: 0.02,
-        metalness: 0.1,
-        transmission: 0.92,
-        ior: 1.62,
+        roughness: 0.08,
+        metalness: 0.2,
         clearcoat: 1.0,
         transparent: true,
-        opacity: 0.95,
+        opacity: 0.9,
       }),
       eyePupilGlow: new THREE.MeshBasicMaterial({
         color: "#5fb8c9",
@@ -116,7 +114,7 @@ export default function Artifact({
 
   useFrame((state) => {
     if (!droneGroup.current) return;
-    const time = state.clock.getElapsedTime();
+    const time = performance.now() * 0.001;
     const target = motion.current;
     const intro = THREE.MathUtils.clamp(introRef.current ?? 1, 0, 1);
     const ndc = pointerRig.ndc.current;
@@ -400,9 +398,8 @@ export default function Artifact({
         </mesh>
       </group>
 
-      {/* Internal Multi-Frequency Point Lights */}
-      <pointLight color="#5fb8c9" intensity={2.4} distance={3.8} />
-      <pointLight color="#d98c4a" intensity={2.0} distance={2.8} position={[0, 0, 0.8]} />
+      {/* Internal Multi-Frequency Point Light */}
+      <pointLight color="#5fb8c9" intensity={1.8} distance={3.0} />
     </group>
   );
 }

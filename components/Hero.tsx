@@ -37,18 +37,38 @@ export default function Hero() {
   const gustRef = useRef<HTMLDivElement>(null);
   const [activeBeat, setActiveBeat] = useState<number>(1);
   const [streaks, setStreaks] = useState<Streak[]>([]);
+  const [isInView, setIsInView] = useState<boolean>(true);
 
   useEffect(() => {
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (!reduce) setStreaks(generateStreaks(16));
+    if (!reduce) {
+      const isMobile = window.innerWidth < 768;
+      setStreaks(generateStreaks(isMobile ? 6 : 14));
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.01 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       gsap.set(heroRef.current, { "--wind-intensity": 1 } as gsap.TweenVars);
@@ -74,7 +94,7 @@ export default function Hero() {
           rotateZ: () => gsap.utils.random(-9, 9),
           skewX: -16,
           opacity: 0,
-          filter: "blur(10px)",
+          filter: isMobile ? "none" : "blur(10px)",
         });
       }
 
@@ -124,7 +144,7 @@ export default function Hero() {
                 rotateZ: 0,
                 skewX: 0,
                 opacity: 1,
-                filter: "blur(0px)",
+                filter: isMobile ? "none" : "blur(0px)",
                 duration: 1.3,
                 ease: "power4.out",
                 stagger: { each: 0.028, from: "start" },
@@ -140,26 +160,12 @@ export default function Hero() {
         .to(".hero-drag-hint", { autoAlpha: 1, scale: 1, duration: 0.8 }, 1.2);
 
       // ── 2. Scroll-scrubbed beat timeline ──────────────────────────────────
-      // Section height: 700vh. Sticky offset: 100vh → ~600vh scroll travel.
-      // Each beat gets a generous window; transitions are tight cross-fades.
-      //
-      //  Beat 1 rest:      0.00 – 0.18
-      //  Beat 1 → 2 exit:  0.18 – 0.27  (B1 out + sidebar out)
-      //  Beat 2 enter:     0.24 – 0.34
-      //  Beat 2 rest:      0.34 – 0.44
-      //  Beat 2 → 3 exit:  0.44 – 0.53
-      //  Beat 3 enter:     0.50 – 0.60
-      //  Beat 3 rest:      0.60 – 0.70
-      //  Beat 3 → 4 exit:  0.70 – 0.78
-      //  Beat 4 enter:     0.75 – 0.87
-      //  Beat 4 rest:      0.87 – 1.00
-
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
           start: "top top",
           end: "bottom bottom",
-          scrub: 1.2,
+          scrub: 1.0,
           onUpdate: (self) => {
             const p = self.progress;
             if (p < 0.27) setActiveBeat(1);
@@ -175,10 +181,10 @@ export default function Hero() {
         .to(
           ".hero-beat-1-group",
           {
-            yPercent: -50,
+            yPercent: -45,
             autoAlpha: 0,
-            scale: 0.94,
-            filter: "blur(6px)",
+            scale: 0.95,
+            filter: isMobile ? "none" : "blur(6px)",
             duration: 0.09,
             ease: "power2.inOut",
           },
@@ -198,11 +204,15 @@ export default function Hero() {
         // ── Beat 2 enter ──
         .fromTo(
           ".hero-beat-2-group",
-          { autoAlpha: 0, yPercent: 50, filter: "blur(8px)" },
+          {
+            autoAlpha: 0,
+            yPercent: 45,
+            filter: isMobile ? "none" : "blur(8px)",
+          },
           {
             autoAlpha: 1,
             yPercent: 0,
-            filter: "blur(0px)",
+            filter: isMobile ? "none" : "blur(0px)",
             duration: 0.12,
             ease: "power3.out",
           },
@@ -213,9 +223,9 @@ export default function Hero() {
         .to(
           ".hero-beat-2-group",
           {
-            yPercent: -50,
+            yPercent: -45,
             autoAlpha: 0,
-            filter: "blur(6px)",
+            filter: isMobile ? "none" : "blur(6px)",
             duration: 0.09,
             ease: "power2.inOut",
           },
@@ -225,11 +235,15 @@ export default function Hero() {
         // ── Beat 3 enter ──
         .fromTo(
           ".hero-beat-3-group",
-          { autoAlpha: 0, yPercent: 50, filter: "blur(8px)" },
+          {
+            autoAlpha: 0,
+            yPercent: 45,
+            filter: isMobile ? "none" : "blur(8px)",
+          },
           {
             autoAlpha: 1,
             yPercent: 0,
-            filter: "blur(0px)",
+            filter: isMobile ? "none" : "blur(0px)",
             duration: 0.12,
             ease: "power3.out",
           },
@@ -240,9 +254,9 @@ export default function Hero() {
         .to(
           ".hero-beat-3-group",
           {
-            yPercent: -50,
+            yPercent: -45,
             autoAlpha: 0,
-            filter: "blur(6px)",
+            filter: isMobile ? "none" : "blur(6px)",
             duration: 0.09,
             ease: "power2.inOut",
           },
@@ -252,12 +266,17 @@ export default function Hero() {
         // ── Beat 4 enter ──
         .fromTo(
           ".hero-beat-4-outro",
-          { autoAlpha: 0, yPercent: 40, scale: 0.95, filter: "blur(10px)" },
+          {
+            autoAlpha: 0,
+            yPercent: 35,
+            scale: 0.96,
+            filter: isMobile ? "none" : "blur(8px)",
+          },
           {
             autoAlpha: 1,
             yPercent: 0,
             scale: 1,
-            filter: "blur(0px)",
+            filter: isMobile ? "none" : "blur(0px)",
             duration: 0.14,
             ease: "power3.out",
           },
@@ -276,12 +295,12 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative h-[700vh] w-full bg-transparent"
+      className="relative h-[360vh] sm:h-[500vh] md:h-[700vh] w-full bg-transparent"
       style={{ ["--wind-intensity" as string]: 1 }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden select-none">
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <Scene frameloop="always" />
+          <Scene frameloop={isInView ? "always" : "never"} />
         </div>
 
         <div

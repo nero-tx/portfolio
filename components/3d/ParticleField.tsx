@@ -27,8 +27,6 @@ function buildDotTexture(): THREE.Texture {
   return new THREE.CanvasTexture(canvas);
 }
 
-const COUNT = 450;
-
 export default function ParticleField() {
   const points = useRef<THREE.Points>(null);
   const texture = useMemo(
@@ -36,23 +34,27 @@ export default function ParticleField() {
     [],
   );
 
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 768 : false;
+  const count = isMobile ? 90 : 200;
+
   const [positions, colors, speeds, phases] = useMemo(() => {
-    const pos = new Float32Array(COUNT * 3);
-    const col = new Float32Array(COUNT * 3);
-    const spd = new Float32Array(COUNT);
-    const phs = new Float32Array(COUNT);
+    const pos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const spd = new Float32Array(count);
+    const phs = new Float32Array(count);
 
     const warmA = new THREE.Color("#ffc470");
     const warmB = new THREE.Color("#ff8838");
     const cool = new THREE.Color("#5fb8c9");
     const temp = new THREE.Color();
 
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 14;
       pos[i * 3 + 1] = Math.random() * 7 - 3;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
 
-      spd[i] = 0.04 + Math.random() * 0.1;
+      spd[i] = 0.04 + Math.random() * 0.08;
       phs[i] = Math.random() * Math.PI * 2;
 
       const r = Math.random();
@@ -69,22 +71,22 @@ export default function ParticleField() {
       col[i * 3 + 2] = temp.b;
     }
     return [pos, col, spd, phs];
-  }, []);
+  }, [count]);
 
   useFrame((state, delta) => {
     if (!points.current) return;
-    const time = state.clock.elapsedTime;
+    const time = performance.now() * 0.001;
     const arr = points.current.geometry.attributes.position
       .array as Float32Array;
 
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < count; i++) {
       const idx = i * 3;
       // Upward thermal drift
       arr[idx + 1] += speeds[i] * delta;
 
       // Gentle organic sinusoidal turbulence
-      arr[idx] += Math.sin(time * 0.35 + phases[i]) * 0.0012;
-      arr[idx + 2] += Math.cos(time * 0.28 + phases[i] * 1.3) * 0.001;
+      arr[idx] += Math.sin(time * 0.35 + phases[i]) * 0.001;
+      arr[idx + 2] += Math.cos(time * 0.28 + phases[i] * 1.3) * 0.0008;
 
       // Reset when floating too high
       if (arr[idx + 1] > 3.8) {
@@ -106,7 +108,7 @@ export default function ParticleField() {
       </bufferGeometry>
 
       <pointsMaterial
-        size={0.048}
+        size={isMobile ? 0.055 : 0.048}
         map={texture}
         vertexColors
         transparent

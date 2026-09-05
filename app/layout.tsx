@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import ScrollReset from "@/components/ScrollReset";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nero-tx.com"),
+  metadataBase: new URL("https://portfolio-phi-beige-81.vercel.app"),
   title: "nero-tx",
   description: "Just give me the tonue and I will make it happen.",
   authors: [{ name: "Tarek Fawzy" }],

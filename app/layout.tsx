@@ -13,8 +13,12 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://n3ro-tx.vercel.app"),
-  title: "nero-tx",
-  description: "Just give me the tonue and I will make it happen.",
+  title: {
+    default: "nero-tx — Tarek Fawzy",
+    template: "%s | nero-tx",
+  },
+  description:
+    "Sculpting digital experiences where brutalist aesthetics, real-time motion, and robust backend architecture converge.",
   authors: [{ name: "Tarek Fawzy" }],
   category: "portfolio",
   creator: "Tarek Fawzy",
@@ -31,15 +35,18 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "nero-tx",
-    description: "Just give me the tonue and I will make it happen.",
+    title: "nero-tx — Tarek Fawzy",
+    description:
+      "Sculpting digital experiences where brutalist aesthetics, real-time motion, and robust backend architecture converge.",
+    url: "https://n3ro-tx.vercel.app",
     siteName: "nero-tx",
     images: [
       {
-        url: "./opengraph-image.png",
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "nero-tx — Tarek Fawzy",
+        alt: "nero-tx — Tarek Fawzy | Creative Developer & Systems Architect",
+        type: "image/png",
       },
     ],
     locale: "en_US",
@@ -47,8 +54,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "nero-tx",
-    description: "Just give me the tonue and I will make it happen.",
+    title: "nero-tx — Tarek Fawzy",
+    description:
+      "Sculpting digital experiences where brutalist aesthetics, real-time motion, and robust backend architecture converge.",
+    images: ["/images/og-image.png"],
   },
 };
 

@@ -232,7 +232,7 @@ export default function WorkHero() {
           </h1>
           <p
             ref={subline}
-            className="mt-6 max-w-md translate-y-3 font-[Space_Grotesk] text-sm text-[#E8DCC8]/70 opacity-0 md:text-base"
+            className="mt-6 max-w-md translate-y-3 font-general text-sm text-[#E8DCC8]/70 opacity-0 md:text-base"
           >
             Interfaces built like architecture — deliberate, load-bearing, built
             to outlast the demo.
@@ -263,7 +263,7 @@ export default function WorkHero() {
       {/* scroll cue */}
       <span
         ref={scrollLabel}
-        className="absolute bottom-10 right-[14%] z-20 -translate-x-1/2 font-[Space_Grotesk] text-xs tracking-wide text-[#E8DCC8] opacity-0"
+        className="absolute bottom-10 right-[14%] z-20 -translate-x-1/2 font-mono text-xs tracking-wide text-[#E8DCC8] opacity-0"
       >
         Scroll
       </span>

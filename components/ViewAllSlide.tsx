@@ -43,7 +43,7 @@ const ViewAllSlide = () => {
       <div className="absolute size-full overflow-hidden bg-[#0B0907] rounded-lg">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,138,74,0.12),transparent_45%),radial-gradient(circle_at_75%_80%,rgba(180,120,55,0.08),transparent_40%)]" />
-          <div className="absolute inset-0 opacity-[0.035] bg-[url('/images/grain.png')]" />
+          <div className="absolute inset-0 opacity-[0.035] grain" />
         </div>
 
         <motion.div className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />

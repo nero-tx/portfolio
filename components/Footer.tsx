@@ -183,7 +183,7 @@ export default function Footer() {
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_100%,rgba(217,140,74,0.07),transparent_60%)]" />
-        <div className="absolute inset-0 opacity-[0.025] bg-[url('/images/grain.png')]" />
+        <div className="absolute inset-0 opacity-[0.025] grain" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1600px] px-6 md:px-16">

@@ -2,7 +2,6 @@
 
 import { RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 import Artifact from "./Artifact";
 import Ground from "./Ground";
@@ -53,8 +52,11 @@ function CameraRig({
     camera.position.z = THREE.MathUtils.lerp(camera.position.z, easedZ, 0.06);
 
     if (camera instanceof THREE.PerspectiveCamera) {
-      camera.fov = THREE.MathUtils.lerp(camera.fov, target.fov, 0.05);
-      camera.updateProjectionMatrix();
+      const nextFov = THREE.MathUtils.lerp(camera.fov, target.fov, 0.05);
+      if (Math.abs(camera.fov - nextFov) > 0.005) {
+        camera.fov = nextFov;
+        camera.updateProjectionMatrix();
+      }
     }
 
     camera.lookAt(0, -0.15, 0);
@@ -87,37 +89,12 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
       <color attach="background" args={["#070503"]} />
       <fog attach="fog" args={["#070503", 4.5, 14]} />
 
-      <Environment resolution={128}>
-        <group rotation={[-Math.PI / 3, 0.4, 0]}>
-          <Lightformer
-            form="rect"
-            intensity={3.8}
-            position={[-4, 5, -3]}
-            scale={[6, 4, 1]}
-            color="#ffbe70"
-            target={[0, 0, 0]}
-          />
-          <Lightformer
-            form="rect"
-            intensity={2.2}
-            position={[4, 2, 4]}
-            scale={[8, 2, 1]}
-            color="#5fb8c9"
-          />
-          <Lightformer
-            form="ring"
-            intensity={1.5}
-            position={[0, 6, 0]}
-            scale={[5, 5, 1]}
-            color="#ffe3b8"
-          />
-        </group>
-      </Environment>
+      <hemisphereLight args={["#ffe3b8", "#120d09", 1.4]} />
 
       <CameraRig cameraMotion={cameraMotion} introRef={introRef} />
 
       <directionalLight
-        position={[-4, 3.8, 3]}
+        position={[-4, 4.2, 3]}
         intensity={3.4}
         color="#ffaa55"
         castShadow
@@ -127,22 +104,22 @@ export default function Scene({ frameloop = "always" }: { frameloop?: Frameloop 
       />
 
       <directionalLight
-        position={[3.5, 1.8, 2.5]}
-        intensity={0.7}
-        color="#3d5868"
+        position={[4, 2, 4]}
+        intensity={1.6}
+        color="#5fb8c9"
       />
 
       <directionalLight
         position={[0, 4.2, -4.5]}
-        intensity={3.2}
+        intensity={3.0}
         color="#ff9940"
       />
 
-      <ambientLight intensity={0.15} color="#2b2018" />
+      <ambientLight intensity={0.12} color="#2b2018" />
 
       <pointLight
         position={[0, -1.2, 0]}
-        intensity={1.2}
+        intensity={1.0}
         distance={4.5}
         color="#ff8833"
       />

@@ -64,7 +64,7 @@ const ImageReveal = ({ source, imgAlt, className }: ImageRevealProps) => {
       </motion.div>
       <motion.div
         style={{ opacity: grainOpacity }}
-        className="pointer-events-none absolute inset-0 mix-blend-overlay bg-[url('/images/grain.png')]"
+        className="pointer-events-none absolute inset-0 mix-blend-overlay grain"
       />
     </motion.div>
   );

@@ -124,7 +124,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
       ref={root}
       className="relative min-h-screen w-full overflow-x-hidden bg-[#0A0908] text-[#E8DCC8]"
     >
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] bg-[url('/images/grain.png')]" />
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] grain" />
 
       <div className="relative z-10 px-6 pb-32 pt-28 md:px-16 md:pt-36">
         <header className="mb-20">
@@ -205,7 +205,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
           <span className="fade-in-el mb-5 block font-mono text-[11px] uppercase tracking-[0.3em] text-[#8C4A3A] opacity-0">
             {project.problem.kicker ?? "The problem"}
           </span>
-          <p className="problem-statement overflow-hidden font-[Cinzel] text-[clamp(1.6rem,3.2vw,2.6rem)] font-light leading-tight text-[#EFE6D4]">
+          <p className="problem-statement overflow-hidden font-circular-web text-[clamp(1.6rem,3.2vw,2.6rem)] font-light leading-tight text-[#EFE6D4]">
             {project.problem.statement}
           </p>
           {project.problem.context && (

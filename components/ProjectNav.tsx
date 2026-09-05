@@ -84,7 +84,7 @@ function NavLink({
             {isNext ? "Next project" : "Previous project"}
           </span>
 
-          <span className="flex items-center gap-3 font-[Cinzel] text-2xl font-light text-[#EFE6D4] md:text-4xl">
+          <span className="flex items-center gap-3 font-circular-web text-2xl font-light text-[#EFE6D4] md:text-4xl">
             {!isNext && <NavArrow icon={ArrowLeft} hoverX={-6} />}
 
             <span className="relative overflow-hidden">

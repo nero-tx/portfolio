@@ -155,7 +155,7 @@ const Work = () => {
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-linear(circle_at_70%_50%,rgba(180,120,55,0.12),transparent_35%)]" />
 
-        <div className="absolute inset-0 opacity-[0.035] bg-[url('/images/grain.png')]" />
+        <div className="absolute inset-0 opacity-[0.035] grain" />
       </div>
 
       <div

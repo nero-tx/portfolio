@@ -134,7 +134,7 @@ export default function WorkPage() {
       ref={pageRef}
       className="relative min-h-screen w-full overflow-x-hidden"
     >
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] bg-[url('/images/grain.png')]" />
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] grain" />
 
       <WorkHero />
 

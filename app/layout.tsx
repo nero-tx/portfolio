@@ -10,6 +10,13 @@ import Footer from "@/components/Footer";
 import ScrollReset from "@/components/ScrollReset";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import {
+  zentry,
+  circularWeb,
+  general,
+  robertMedium,
+  robertRegular,
+} from "./fonts";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://n3ro-tx.vercel.app"),
@@ -61,11 +68,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
-      className="antialiased"
+      className={`antialiased ${zentry.variable} ${circularWeb.variable} ${general.variable} ${robertMedium.variable} ${robertRegular.variable}`}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >

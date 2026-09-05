@@ -36,63 +36,29 @@ export function useSceneMotion() {
 
       artifactMotion.current.coreReveal = 0;
 
-      // Act 1: Extended Hero Multi-Beat Narrative Choreography (4-Phase Storyline)
+      // Clean, elegant scroll-driven parallax and subtle spatial retreat into the About section
       ScrollTrigger.create({
         trigger: "#hero",
         start: "top top",
-        end: "bottom bottom",
+        end: "bottom top",
         scrub: 1.2,
         animation: gsap
           .timeline()
-          // Beat 1 -> Beat 2: Inspection Orbit & Zoom In
           .to(
             artifactMotion.current,
             {
-              x: -0.35,
-              rotY: Math.PI * 0.65,
-              scale: 1.05,
-              ease: "power1.inOut",
+              y: -0.4,
+              z: -1.2,
+              rotY: Math.PI * 0.45,
+              scale: 0.9,
+              ease: "power2.inOut",
             },
             0,
           )
           .to(
             cameraMotion.current,
-            { x: -0.15, y: 0.1, z: 4.8, fov: 29, ease: "power1.inOut" },
+            { y: 0.2, z: 6.2, fov: 32, ease: "power2.inOut" },
             0,
-          )
-          // Beat 2 -> Beat 3: Hyper-Drive Awakening
-          .to(
-            artifactMotion.current,
-            {
-              x: 0.55,
-              rotY: Math.PI * 1.35,
-              scale: 1.15,
-              ease: "power2.inOut",
-            },
-            0.35,
-          )
-          .to(
-            cameraMotion.current,
-            { x: 0.15, y: -0.05, z: 4.2, fov: 31, ease: "power2.inOut" },
-            0.35,
-          )
-          // Beat 3 -> Beat 4 (Outro): Flight Mode & Hyperspace Ascent
-          .to(
-            artifactMotion.current,
-            {
-              x: 0,
-              y: 0.65,
-              z: -1.6,
-              rotY: Math.PI * 2.2,
-              scale: 0.75,
-              ease: "power2.inOut",
-            },
-            0.7,
-          )
-          .to(
-            cameraMotion.current,
-            { x: 0, y: 0.25, z: 5.4, fov: 28, ease: "power2.inOut" },
-            0.7,
           ),
       });
 

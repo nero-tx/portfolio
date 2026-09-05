@@ -17,27 +17,46 @@ export default function About() {
 
   useGSAP(
     () => {
-      const contextSplit = new SplitText(".about-context-manifesto", {
-        type: "lines,words",
-      });
+      const isMobile = window.innerWidth < 768;
 
-      // Context scrubbed illumination
-      gsap.fromTo(
-        contextSplit.words,
-        { color: "rgba(232, 220, 200, 0.15)", filter: "blur(2px)" },
-        {
-          color: "#E8DCC8",
-          filter: "blur(0px)",
-          stagger: 0.05,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".about-context-manifesto",
-            start: "top 80%",
-            end: "bottom 50%",
-            scrub: 1.2,
+      if (!isMobile) {
+        const contextSplit = new SplitText(".about-context-manifesto", {
+          type: "lines,words",
+        });
+
+        // Context scrubbed illumination
+        gsap.fromTo(
+          contextSplit.words,
+          { color: "rgba(232, 220, 200, 0.15)", filter: "blur(2px)" },
+          {
+            color: "#E8DCC8",
+            filter: "blur(0px)",
+            stagger: 0.05,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".about-context-manifesto",
+              start: "top 80%",
+              end: "bottom 50%",
+              scrub: 1.2,
+            },
           },
-        },
-      );
+        );
+      } else {
+        gsap.fromTo(
+          ".about-context-manifesto",
+          { opacity: 0.4 },
+          {
+            opacity: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".about-context-manifesto",
+              start: "top 85%",
+              end: "bottom 60%",
+              scrub: 1,
+            },
+          },
+        );
+      }
 
       gsap.fromTo(
         ".about-main-divider",

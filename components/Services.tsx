@@ -42,29 +42,50 @@ export default function Services() {
           },
         });
 
-        const titleSplit = new SplitText(".services-header-title", {
-          type: "lines,words",
-        });
+        const isMobile = window.innerWidth < 768;
+        let titleSplit: InstanceType<typeof SplitText> | null = null;
 
-        gsap.set(titleSplit.words, {
-          autoAlpha: 0,
-          yPercent: 100,
-          rotateX: -20,
-        });
+        if (!isMobile) {
+          titleSplit = new SplitText(".services-header-title", {
+            type: "lines,words",
+          });
 
-        gsap.to(titleSplit.words, {
-          autoAlpha: 1,
-          yPercent: 0,
-          rotateX: 0,
-          stagger: 0.04,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".services-header-title",
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
-        });
+          gsap.set(titleSplit.words, {
+            autoAlpha: 0,
+            yPercent: 100,
+            rotateX: -20,
+          });
+
+          gsap.to(titleSplit.words, {
+            autoAlpha: 1,
+            yPercent: 0,
+            rotateX: 0,
+            stagger: 0.04,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".services-header-title",
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          });
+        } else {
+          gsap.fromTo(
+            ".services-header-title",
+            { autoAlpha: 0, y: 20 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.8,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: ".services-header-title",
+                start: "top 88%",
+                toggleActions: "play none none reverse",
+              },
+            },
+          );
+        }
 
         gsap.from(".services-hud-badge", {
           opacity: 0,
@@ -140,7 +161,7 @@ export default function Services() {
         });
 
         return () => {
-          titleSplit.revert();
+          titleSplit?.revert();
         };
       });
 

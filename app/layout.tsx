@@ -53,7 +53,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="antialiased"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    >
       <body className="w-full overflow-x-hidden flex flex-col relative">
         <ScrollReset />
         <IntroLoader />

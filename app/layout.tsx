@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "nero-tx",
     images: [
       {
-        url: "public/images/og-image.png",
+        url: "./opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "nero-tx — Tarek Fawzy",
@@ -49,7 +49,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "nero-tx",
     description: "Just give me the tonue and I will make it happen.",
-    images: ["public/images/og-image.png"],
   },
 };
 

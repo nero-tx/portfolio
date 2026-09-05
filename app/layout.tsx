@@ -12,7 +12,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://portfolio-phi-beige-81.vercel.app"),
+  metadataBase: new URL("https://n3ro-tx.vercel.app"),
   title: "nero-tx",
   description: "Just give me the tonue and I will make it happen.",
   authors: [{ name: "Tarek Fawzy" }],
